@@ -7,6 +7,7 @@ from pyquery import PyQuery as pq
 from lxml import etree
 import sys
 import os
+from optparse import OptionParser
 
 
 subdir = "./cec/"
@@ -20,7 +21,7 @@ def get_page(filename):
 
 
 
-re_parser1 = re.compile(r"([\w& \.\(\)]+?)([A-Z ]{3,7})(\d{0,3})?\s*(\w+)?$")
+re_parser1 = re.compile(r"([\w& \.\(\)]+?)([A-Z ]{3,7})\s*(\d{1,3})?\s*(\w)*$")
 re_parser2 = re.compile(r"([\w\-\'\(\) \*]+)\s{2,4}([\w\- ]+)\s{2,4}(\w\w\d\d)")
 
 
@@ -28,8 +29,14 @@ re_parser2 = re.compile(r"([\w\-\'\(\) \*]+)\s{2,4}([\w\- ]+)\s{2,4}(\w\w\d\d)")
 
 cnt = 0
 
+# configurable argv
+if sys.argv is not None:
+    subdir = sys.argv[1]
+
+#print subdir
+
 for root, dirs, files in os.walk(subdir):
-    print root
+    #print root
     for name in files:
         filename = os.path.join(root,name)
         #print "    ",  filename
@@ -50,6 +57,7 @@ for root, dirs, files in os.walk(subdir):
         if len(m2.groups()) != 3:
             print "fail 2: ", str1, str2
 
+
         left = m.group(1).strip() + "," + m.group(2).strip() + "," + ("" if m.group(3) == None else m.group(3).strip()) + "," + ("" if m.group(4) == None else m.group(4).strip())
 
         caption = evalsoup.find('caption').text.replace(u"\xa0", " ")
@@ -66,7 +74,8 @@ for root, dirs, files in os.walk(subdir):
         #print str1
         rows = evalsoup.find_all('tr')[1:]
         right = ",".join(map(lambda r: ",".join(map(lambda y: y.text.strip("% \r\n\t"), r.find_all('td')[1:])) , rows ))
-        print str1 + "||" + left + "," + survey + "," +  ",".join(map(lambda g: g.strip() , m2.groups())) + "," + right
+        #print str1 + "||" + left + "," + survey + "," +  ",".join(map(lambda g: g.strip() , m2.groups())) + "," + right
+        print str1 + "," + left + "," + survey + "," +  ",".join(map(lambda g: g.strip() , m2.groups())) + "," + right
 
 
 
