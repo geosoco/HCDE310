@@ -19,6 +19,13 @@ class Courses(models.Model):
     class Meta:
         db_table = u'Courses'
 
+class Instructor(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=192, db_column='Name') # Field name made lowercase.
+    title = models.CharField(max_length=192, db_column='Title', blank=True) # Field name made lowercase.
+    class Meta:
+        db_table = u'Instructor'
+
 class Instances(models.Model):
     id = models.IntegerField(primary_key=True)
     idcourse = models.IntegerField(db_column='idCourse') # Field name made lowercase.
@@ -37,11 +44,3 @@ class Instances(models.Model):
     ratingenrolled = models.IntegerField(null=True, db_column='RatingEnrolled', blank=True) # Field name made lowercase.
     class Meta:
         db_table = u'Instances'
-
-class Instructor(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=192, db_column='Name') # Field name made lowercase.
-    title = models.CharField(max_length=192, db_column='Title', blank=True) # Field name made lowercase.
-    class Meta:
-        db_table = u'Instructor'
-
