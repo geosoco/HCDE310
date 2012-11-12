@@ -35,6 +35,9 @@ if sys.argv is not None:
 
 #print subdir
 
+# print our header
+print "str1,Dept,DeptAbbrev,CourseNum,Section,CourseType,CourseTypeName,NumSurveyed,NumEnrolled,Instructor,InstructorTitle,Quarter,CourseWhole5,CourseWhole4,CourseWhole3,CourseWhole2,CourseWhole1,CourseWhole0,CourseWholeMedian,Content5,Content4,Content3,Content2,Content1,Content0,ContentMedian,InstContrib5,InstContrib4,InstContrib3,InstContrib2,InstContrib1,InstContrib0,InstContribMedian,Effectiveness5,Effectiveness4,Effectiveness3,Effectiveness2,Effectiveness1,Effectiveness0,Median,Interest5,Interest4,Interest3,Interest2,Interest1,Interest0,InterestMedian,Learned5,Learned4,Learned3,Learned2,Learned1,Learned0,LearnedMedian,Grading5,Grading4,Grading3,Grading2,Grading1,Grading0,GradingMedian"
+
 for root, dirs, files in os.walk(subdir):
     #print root
     for name in files:
