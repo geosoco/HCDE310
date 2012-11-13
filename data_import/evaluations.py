@@ -8,6 +8,7 @@ from lxml import etree
 import sys
 import os
 from optparse import OptionParser
+import copy
 
 
 subdir = "./cec/"
@@ -33,10 +34,43 @@ cnt = 0
 if sys.argv is not None:
     subdir = sys.argv[1]
 
+
+eval_questions = {
+    "The course as a whole:" : "CourseWhole",
+    "The lab section as a whole:" : "CourseWhole",
+    "Quiz section as a whole:" : "CourseWhole",
+    "Rotation/studio as a whole:" : "CourseWhole",
+
+    "The course content:" : "Content",
+    "Quiz section content:" : "Content",
+    "The lab section content:" : "Content",
+
+    "Instructor's contribution:" : "Contrib",
+
+    "Instuctor's interest:" : "Interest",
+
+    "Instructor's effectiveness:" : "Effectiveness",
+
+    "Amount learned:" : "Learned",
+
+    "Grading techniques:" : "Grading"
+}
+
+eval_base = {
+    "CourseWhole": ",,,,,,",
+    "Content": ",,,,,,",
+    "Contrib": ",,,,,,",
+    "Effectiveness": ",,,,,,",
+    "Grading": ",,,,,,",
+    "Interest": ",,,,,,",
+    "Learned": ",,,,,,"
+}
+
+
 #print subdir
 
 # print our header
-print "str1,Dept,DeptAbbrev,CourseNum,Section,CourseType,CourseTypeName,NumSurveyed,NumEnrolled,Instructor,InstructorTitle,Quarter,CourseWhole5,CourseWhole4,CourseWhole3,CourseWhole2,CourseWhole1,CourseWhole0,CourseWholeMedian,Content5,Content4,Content3,Content2,Content1,Content0,ContentMedian,InstContrib5,InstContrib4,InstContrib3,InstContrib2,InstContrib1,InstContrib0,InstContribMedian,Effectiveness5,Effectiveness4,Effectiveness3,Effectiveness2,Effectiveness1,Effectiveness0,Median,Interest5,Interest4,Interest3,Interest2,Interest1,Interest0,InterestMedian,Learned5,Learned4,Learned3,Learned2,Learned1,Learned0,LearnedMedian,Grading5,Grading4,Grading3,Grading2,Grading1,Grading0,GradingMedian"
+print "str1,Dept,DeptAbbrev,CourseNum,Section,CourseType,CourseTypeName,NumSurveyed,NumEnrolled,Instructor,InstructorTitle,Quarter,CourseWhole5,CourseWhole4,CourseWhole3,CourseWhole2,CourseWhole1,CourseWhole0,CourseWholeMedian,Content5,Content4,Content3,Content2,Content1,Content0,ContentMedian,Contrib5,Contrib4,Contrib3,Contrib2,Contrib1,Contrib0,ContribMedian,Effectiveness5,Effectiveness4,Effectiveness3,Effectiveness2,Effectiveness1,Effectiveness0,EffectivenessMedian,Grading5,Grading4,Grading3,Grading2,Grading1,Grading0,GradingMedian,Interest5,Interest4,Interest3,Interest2,Interest1,Interest0,InterestMedian,Learned5,Learned4,Learned3,Learned2,Learned1,Learned0,LearnedMedian"
 
 for root, dirs, files in os.walk(subdir):
     #print root
@@ -75,8 +109,26 @@ for root, dirs, files in os.walk(subdir):
             survey = ",,,,"
 
         #print str1
+
+        # copy our default
+        evals = copy.deepcopy(eval_base)
+
         rows = evalsoup.find_all('tr')[1:]
-        right = ",".join(map(lambda r: ",".join(map(lambda y: y.text.strip("% \r\n\t"), r.find_all('td')[1:])) , rows ))
+        for r in rows:
+            # what is this a question for ?
+            question = r.find_all('td')[0].text.strip()
+            # ignore other ratings
+            if question not in eval_questions:
+                continue
+
+            #
+            new_q = eval_questions[question]
+
+            evals[new_q] = ",".join(map(lambda y: y.text.strip("% \r\n\t"), r.find_all('td')[1:]))
+            #print evals[new_q]
+
+        #right = ",".join(map(lambda r: ",".join(map(lambda y: y.text.strip("% \r\n\t"), r.find_all('td')[1:])) , rows ))
+        right = ",".join(evals.values())
         #print str1 + "||" + left + "," + survey + "," +  ",".join(map(lambda g: g.strip() , m2.groups())) + "," + right
         print str1 + "," + left + "," + survey + "," +  ",".join(map(lambda g: g.strip() , m2.groups())) + "," + right
 
@@ -130,7 +182,24 @@ for letter in letters:
 
         left = ",".join(m.groups())
 
+        # copy our default
+        evals = copy.deepcopy(eval_base)
+
         rows = evalsoup.find_all('tr')[1:]
+        for r in rows:
+            # what is this a question for ?
+            question = r.find_all('td')[0].text.strip()
+            # ignore other ratings
+            if question not in eval_questions:
+                continue;
+
+            #
+            new_q = eval_questions[question]
+
+            evals[new_q] = ",".join(map(lambda y: y.text.strip(), r.find_all('td')[1:]))
+
+
+
         right = ",".join(map(lambda r: ",".join(map(lambda y: y.text.strip(), r.find_all('td')[1:])) , rows ))
 
         line = left + "," + right
