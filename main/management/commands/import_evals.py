@@ -10,64 +10,71 @@ def AddDept(name, abbrev):
 	try:
 		d = Departments.objects.get(abbreviation = abbrev)
 		#print d.id
-		return d.id
+		return d
 	except Departments.DoesNotExist, e:
 		try:
 			d = Departments(name=name,abbreviation=abbrev)
 			d.save()
-			return d.id
+			return d
 		except:
 			return None
 
 def AddDepartments(depts):
 	for dept in depts.keys():
-		id = AddDept(depts[dept]['name'], dept)
+		d = AddDept(depts[dept]['name'], dept)
 		#print id
-		if id is not None:
-			depts[dept]['id'] = id
+		if d is not None:
+			depts[dept]['id'] = d.id
 		else:
 			depts[dept]['id'] = -1
+		depts[dept]['obj'] = d
 		
 def AddInstructor(name):
 	try:
 		i = Instructors.objects.get(name = name)
-		return i.id
+		return i
 	except Instructors.DoesNotExist, e:
 		try:
 			i = Instructors(name=name)
 			i.save()
-			return i.id
+			return i
 		except:
 			return None
 
 def AddInstructors(instructors):
 	for instructor in instructors.keys():
-		id = AddInstructor(instructor)
-		if id is not None:
-			instructors[instructor]['id'] = id
+		i = AddInstructor(instructor)
+		if i is not None:
+			instructors[instructor]['id'] = i.id
 		else:
 			instructors[instructor]['id'] = -1
+		instructors[instructor]['obj'] = i
 
 
-def AddCourse(dept_id, number, name, comment = "", descr = ""):
+def AddCourse(dept, number, name, comment = "", descr = ""):
 	try:
-		c = Courses.objects.get(iddepartment = dept_id, number = number)
-		return c.id
+		c = Courses.objects.get(iddepartment = dept, number = int(number))
+		return c
 	except Courses.DoesNotExist, e:
 		try:
-			c = Courses(name=name, number=number, iddepartment=dept_id, comment = comment, description = descr)
+			c = Courses(name=name, number=long(number), iddepartment=dept, comment = comment, description = descr)
 			c.save()
-			return c.id
-		except:
+			return c
+		except Exception, e:
+			print "exception!"
+			print e
 			return None
 
 def AddCourses(deptid, courses):
 	for course in courses.keys():
-		id = AddCourse(deptid, course, "", "", "")
-		if id is not None:
-			courses[course] = id
+		#print "[%s]"%course
+		#print courses[course]
+		c = AddCourse(deptid, course, "", "", "")
+		if c is not None:
+			courses[course]['id'] = c.id
 		else:
-			courses[course] = -1
+			courses[course]['id'] = -1
+		courses[course]['obj'] = c
 
 
 def AddRating(rating):
@@ -81,7 +88,7 @@ def AddRating(rating):
 		r.amountlearned = rating["Learned"]
 		r.grading = rating["Grading"]
 		r.save()
-		return r.id
+		return r
 	except:
 		return None
 
@@ -141,6 +148,48 @@ class Command(BaseCommand):
 				dept = row[self.headerDict['DeptAbbrev']].strip()
 				dept_name = row[self.headerDict['Dept']].strip()
 				coursenum = row[self.headerDict['CourseNum']].strip()
+				if len(coursenum) == 0: 
+					continue
+
+
+				if dept not in self.depts:
+					self.depts[dept] = { 'id': len(self.depts), 'name': dept_name, 'courses': {}}
+				if coursenum not in self.depts[dept]:
+					self.depts[dept]['courses'][coursenum] = { "id": len(self.depts[dept]['courses']) }
+
+				quarter = row[self.headerDict['Quarter']].strip()
+				self.quarters.add(quarter)
+
+				section = row[self.headerDict['Section']].strip()
+				instructor_title = row[self.headerDict['InstructorTitle']].strip()
+
+				#self.depts[dept]['courses'][coursenum]['instances'].append({ "id": -1, "rating": ratings, "quarter": quarter, "section": section, "instructortitle": instructor_title})
+
+			# step through
+			print "Adding Departments (%d)"%len(self.depts)
+			AddDepartments(self.depts)
+
+			print "Adding Instructors (%d)"%len(self.instructors)
+			AddInstructors(self.instructors)
+
+			print "Adding Courses"
+			for dept in self.depts.keys():
+				print "%s (%d)"%(dept,self.depts[dept]['id'])
+				dept_obj = self.depts[dept]['obj']
+				#print dept_obj
+				AddCourses(dept_obj, self.depts[dept]['courses'])
+
+			# now do the instances
+			csvfile.seek(0)
+			csvreader = csv.reader(csvfile)
+			header = csvreader.next()
+			for row in csvreader:
+				instructor = row[self.headerDict['Instructor']].strip()
+				instructor_title = row[self.headerDict['InstructorTitle']].strip()
+				dept = row[self.headerDict['DeptAbbrev']].strip()
+				coursenum = row[self.headerDict['CourseNum']].strip()
+				quarter = row[self.headerDict['Quarter']].strip()
+				section = row[self.headerDict['Section']].strip()
 
 				rating_mappings = {
 					"NumSurveyed" : "NumSurveyed",
@@ -159,14 +208,14 @@ class Command(BaseCommand):
 					col = rating_mappings[rm]
 					ratings[rm] = row[self.headerDict[col]]
 
+				print "%s %d"%(dept,coursenum)
+				i = self.instructors[instructor]['obj']
+				d = self.depts[dept]['obj']
+				c = self.depts[dept]['courses'][coursenum]['obj']
 
-				if dept not in self.depts:
-					self.depts[dept] = { 'id': 0, 'name': dept_name, 'courses': {}}
-				if coursenum not in self.depts[dept]:
-					self.depts[dept]['courses'][coursenum] = { "id": len(self.depts[dept]['courses']), "ratings": ratings }
+				inst = AddInstance(c,i,quarter,section,instructor_title,ratings)
 
-				quarter = row[self.headerDict['Quarter']].strip()
-				self.quarters.add(quarter)
+				
 
 		#print self.coursetypes.keys()
 
@@ -189,19 +238,12 @@ class Command(BaseCommand):
 		#for q in self.quarters:
 		#	print q
 
-		print "Adding Departments (%d)"%len(self.depts)
-		#AddDepartments(self.depts)
-
-		print "Adding Instructors (%d)"%len(self.instructors)
-		#AddInstructors(self.instructors)
-
-		print "Adding Courses"
-		for dept in self.depts.keys():
-			print dept
-			for course in self.depts[dept]['courses'].keys():
-				print "    %s"%(course)
-
 		
+			#for course in self.depts[dept]['courses'].keys():
+				#print "    %s"%(course)
+				#print "        %s"%(self.depts[dept]['courses'][course]['ratings'])
+
+
 
 
 
