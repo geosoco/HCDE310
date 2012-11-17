@@ -2,7 +2,21 @@ from django.core.management.base import BaseCommand, CommandError
 import django.db
 import csv
 from main.models import Departments, Courses, Instances, Ratings, Instructors
+import pprint
+from decimal import *
 
+
+RATING_MAPPINGS = {
+	"NumSurveyed" : "NumSurveyed",
+	"NumEnrolled" : "NumEnrolled",
+	"Course" : "CourseWholeMedian",
+	"Content" : "ContentMedian",
+	"Contrib" : "ContribMedian",
+	"Effectiveness" : "EffectivenessMedian",
+	"Grading" : "GradingMedian",
+	"Interest" : "InterestMedian",
+	"Learned" : "LearnedMedian"
+}
 
 
 def AddDept(name, abbrev):
@@ -53,7 +67,7 @@ def AddInstructors(instructors):
 
 def AddCourse(dept, number, name, comment = "", descr = ""):
 	try:
-		c = Courses.objects.get(iddepartment = dept, number = int(number))
+		c = Courses.objects.get(iddepartment = dept, number = long(number))
 		return c
 	except Courses.DoesNotExist, e:
 		try:
@@ -64,6 +78,8 @@ def AddCourse(dept, number, name, comment = "", descr = ""):
 			print "exception!"
 			print e
 			return None
+	except Exception, e:
+		print "AddCourse - exception: ", e
 
 def AddCourses(deptid, courses):
 	for course in courses.keys():
@@ -78,28 +94,39 @@ def AddCourses(deptid, courses):
 
 
 def AddRating(rating):
-	try:
+#	try:
 		r = Ratings(numsurveyed = rating["NumSurveyed"], numenrolled = rating["NumEnrolled"])
-		r.coursewhole = rating["Course"]
-		r.coursecontent = rating["Content"]
-		r.instructoreffectiveness = rating["Effectiveness"]
-		r.instructorcontribution = rating["Contrib"]
-		r.instructorinterest = rating["Interest"]
-		r.amountlearned = rating["Learned"]
-		r.grading = rating["Grading"]
+		r.coursewhole = Decimal(rating["Course"]) if len(rating["Course"]) > 0 else None
+		r.coursecontent = Decimal(rating["Content"]) if len(rating["Content"]) > 0 else None
+		r.instructoreffectiveness = Decimal(rating["Effectiveness"]) if len(rating["Effectiveness"]) > 0 else None
+		r.instructorcontribution = Decimal(rating["Contrib"]) if len(rating["Contrib"]) > 0 else None
+		r.instructorinterest = Decimal(rating["Interest"]) if len(rating["Interest"]) > 0 else None
+		r.amountlearned = Decimal(rating["Learned"]) if len(rating["Learned"]) > 0 else None
+		r.grading = Decimal(rating["Grading"]) if len(rating["Grading"]) > 0 else None
+
+		print r.coursewhole
+
+		#print rating
+		#print ",".join(rating.values())
 		r.save()
 		return r
-	except:
-		return None
+#	except Exception, e:
+#		print "exception in AddRating: ", e
+#		return None
 
 def AddInstance(course_id, instructor_id, quarter, section, instructor_title, ratings):
 	try:
-		i = Instances(quarter = quarter, idinstructor = instructor_id, idcourse = course_id, instructortitle = instructor_title, section = section )
+		q = quarter[:2]
+		y = quarter[2:]
+		#print course_id
+		#print "%s %s"%(q, y)
 		r = AddRating(ratings)
+		i = Instances(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idratings = r, instructortitle = instructor_title, section = section )
 		i.idratings = r
 		i.save()
 		return i.id
-	except:
+	except Exception, e:
+		print "exception: ", e
 		return None
 
 
@@ -123,31 +150,22 @@ class Command(BaseCommand):
 		#print "opening %s"%args[0]
 		self.stdout.write('opening: %s\n'%args[0])
 		with open(args[0],'rU') as csvfile:
-			csvreader = csv.reader(csvfile)
-			header = csvreader.next()
-
-			# build header dictionary
-			# key: name; value: index
-			i = 0
-			for col in header:
-				colname = col.strip()
-				self.headerDict[colname] = i
-				i = i + 1
+			csvreader = csv.DictReader(csvfile)
 
 			#
 			for row in csvreader:
-				self.coursetypes[row[self.headerDict['CourseType']].strip()] = row[self.headerDict['CourseTypeName']]
+				self.coursetypes[row['CourseType'].strip()] = row['CourseTypeName']
 
-				instructor = row[self.headerDict['Instructor']].strip()
-				instructor_title = row[self.headerDict['InstructorTitle']].strip()
+				instructor = row['Instructor'].strip()
+				instructor_title = row['InstructorTitle'].strip()
 				if instructor not in self.instructors:
 					self.instructors[instructor] = { "courses": 0, "titles": set(), "id": -1}
 				self.instructors[instructor]['courses'] = self.instructors[instructor]['courses'] + 1
 				self.instructors[instructor]['titles'].add(instructor_title)
 
-				dept = row[self.headerDict['DeptAbbrev']].strip()
-				dept_name = row[self.headerDict['Dept']].strip()
-				coursenum = row[self.headerDict['CourseNum']].strip()
+				dept = row['DeptAbbrev'].strip()
+				dept_name = row['Dept'].strip()
+				coursenum = row['CourseNum'].strip()
 				if len(coursenum) == 0: 
 					continue
 
@@ -157,11 +175,11 @@ class Command(BaseCommand):
 				if coursenum not in self.depts[dept]:
 					self.depts[dept]['courses'][coursenum] = { "id": len(self.depts[dept]['courses']) }
 
-				quarter = row[self.headerDict['Quarter']].strip()
+				quarter = row['Quarter'].strip()
 				self.quarters.add(quarter)
 
-				section = row[self.headerDict['Section']].strip()
-				instructor_title = row[self.headerDict['InstructorTitle']].strip()
+				section = row['Section'].strip()
+				instructor_title = row['InstructorTitle'].strip()
 
 				#self.depts[dept]['courses'][coursenum]['instances'].append({ "id": -1, "rating": ratings, "quarter": quarter, "section": section, "instructortitle": instructor_title})
 
@@ -180,38 +198,31 @@ class Command(BaseCommand):
 				AddCourses(dept_obj, self.depts[dept]['courses'])
 
 			# now do the instances
+			
 			csvfile.seek(0)
-			csvreader = csv.reader(csvfile)
-			header = csvreader.next()
+			csvreader.next()
 			for row in csvreader:
-				instructor = row[self.headerDict['Instructor']].strip()
-				instructor_title = row[self.headerDict['InstructorTitle']].strip()
-				dept = row[self.headerDict['DeptAbbrev']].strip()
-				coursenum = row[self.headerDict['CourseNum']].strip()
-				quarter = row[self.headerDict['Quarter']].strip()
-				section = row[self.headerDict['Section']].strip()
+				instructor = row['Instructor'].strip()
+				instructor_title = row['InstructorTitle'].strip()
+				dept = row['DeptAbbrev'].strip()
+				coursenum = row['CourseNum'].strip()
+				quarter = row['Quarter'].strip()
+				section = row['Section'].strip()
 
-				rating_mappings = {
-					"NumSurveyed" : "NumSurveyed",
-					"NumEnrolled" : "NumEnrolled",
-					"Course" : "CourseWholeMedian",
-					"Content" : "ContentMedian",
-					"Contrib" : "ContribMedian",
-					"Effectiveness" : "EffectivenessMedian",
-					"Grading" : "GradingMedian",
-					"Interest" : "InterestMedian",
-					"Learned" : "LearnedMedian"
-				}
+				if len(coursenum) == 0:
+					continue
 
 				ratings = {}
-				for rm in rating_mappings.keys():
-					col = rating_mappings[rm]
-					ratings[rm] = row[self.headerDict[col]]
+				for k,v in RATING_MAPPINGS.iteritems():
+					ratings[k] = row[v]
 
-				print "%s %d"%(dept,coursenum)
+				print "%s %s"%(dept,coursenum)
+
 				i = self.instructors[instructor]['obj']
 				d = self.depts[dept]['obj']
 				c = self.depts[dept]['courses'][coursenum]['obj']
+
+				#pprint.pprint(vars(c))
 
 				inst = AddInstance(c,i,quarter,section,instructor_title,ratings)
 
