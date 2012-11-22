@@ -21,9 +21,13 @@ def instructor(request, id=1):
 
 
 def department(request, id):
-	return HttpResponse('department')
+	d = get_object_or_404(Departments, pk=long(id))
+	c = Courses.objects.filter(iddepartment=d)
+	return render_to_response('department.html', {"department" : d, "courses" : c})
 
 
 def course(request, id):
-	return HttpResponse('course')
+	c = get_object_or_404(Courses, pk=long(id))
+	inst = Instances.objects.filter(idcourse=c)
+	return render_to_response('course.html', {"course" : c, "instances" : inst})
 
