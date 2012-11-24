@@ -9,3 +9,8 @@
 
 # Executable files
 *.EXE
+
+#
+settings.py
+settings.pyc
+*.pyc
