@@ -105,8 +105,8 @@ class Meetings(models.Model):
 
 class SectionRelations(models.Model):
     id = models.AutoField(primary_key=True)
-    idinstance = models.ForeignKey(Instances, db_column='idInstance') # Field name made lowercase.
-    idparent = models.ForeignKey(Instances, db_column='idParent') # Field name made lowercase.
+    idinstance = models.ForeignKey(Instances, db_column='idInstance', related_name='sectionrelation_instance') # Field name made lowercase.
+    idparent = models.ForeignKey(Instances, db_column='idParent', related_name='sectionrelation_parent') # Field name made lowercase.
     class Meta:
         db_table = u'SectionRelations'
 
