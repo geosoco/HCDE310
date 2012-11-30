@@ -146,7 +146,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		print "Version: %s"%django.get_version()
 		if args is None or len(args) == 0:
-			raise CommandError('csv  "%s" does not exist' % poll_id)
+			raise CommandError('csv  "%s" does not exist' % args[0])
 		#print "opening %s"%args[0]
 		self.stdout.write('opening: %s\n'%args[0])
 		with open(args[0],'rU') as csvfile:
