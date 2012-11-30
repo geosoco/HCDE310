@@ -19,7 +19,7 @@ for y in years:
         		curriculums[abbr] = c
         	else:
         		curriculums[abbr]['LastYear'] = y
-        # check for missing data
+        # check for missing data and that should signify the last year 
         abbreviations = set([c['CurriculumAbbreviation'] for c in c_data['Curricula']])
         for abbr in curriculums:
         	if abbr not in abbreviations:

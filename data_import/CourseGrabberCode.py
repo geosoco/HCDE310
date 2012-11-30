@@ -1,48 +1,31 @@
+import sys
 import httplib
 import urllib
 import urllib2
 import simplejson
 import csv
 import student
-
-college_url = 'https://ws.admin.washington.edu/student/v4/public/curriculum.json'
-
+import os
 
 
+fieldnames = ["CurriculumAbbreviation", "CourseNumber", "CourseTitle", "CourseTitleLong", "CourseDescription", "CourseComment", "Href", 
+    "Year", "Quarter", 'FirstYear', 'FirstQuarter', 'LastYear', 'LastQuarter', 'MinTermCredit', 'MaxTermCredit', 
+    "GE_EC", "GE_IS", "GE_NW", "GE_VLPA", "GE_QSR", "GE_W" ]
 
 
-def get_json_data(url):
-    data = urllib2.urlopen(url).read()
-    return simplejson.loads(data)
-
-
-def get_student_json_data(method, params):
-    params_str = urllib.urlencode(params)
-    return get_json_data("https://ws.admin.washington.edu/student/v4/public/" + method + ".json?" + params_str)
-
-
-def get_curriculum_data(year, quarter):
-    return get_student_json_data('curriculum', {'year': year, 'quarter': quarter })
-
-# returns a json object containing a list of classes for the given year, quarter, and department; all fields must be passed
-def get_classes(year, quarter, department):
-    params['year'] = year
-    params['quarter'] = quarter
-    params['curriculum_abbreviation'] = urllib.quote(department)
-    params['page_size'] = 500
-    return get_student_json_data('course', params)
-
-    #base_url = "https://ws.admin.washington.edu/student/v4/public/course.json?year="
-    #class_url = base_url + str(year) + "&quarter=" + quarter + "&future_terms=0&curriculum_abbreviation=" + urllib.quote(department) + "&course_number=&course_title_starts=&course_title_contains=&page_size=500"
-    #class_string = urllib2.urlopen(class_url).read()
-    #class_json = simplejson.loads(class_string)
-    #return class_json
-
-
-def get_class_data(url):
-    return get_json_data("https://ws.admin.washington.edu" + url)
-
-
+def writeCSV(filename, rows):
+    with open(filename, "wt") as data_file:
+        csvwriter = csv.DictWriter(data_file, delimiter=",", fieldnames=fieldnames)
+        csvwriter.writerow(dict((fn,fn) for fn in fieldnames))
+        for key,item in rows:
+            try:
+                csvwriter.writerow(item)
+            except UnicodeEncodeError, e:
+                print student.pretty(item)
+                continue
+            except Exception, e:
+                continue
+        data_file.close()
 
 
 #
@@ -51,76 +34,106 @@ def get_class_data(url):
 #
 #
 
+subdir = "./coursedata"
+if sys.argv is not None and len(sys.argv) > 1:
+    subdir = sys.argv[1]
+if not os.path.exists(subdir):
+    os.makedirs(subdir)
 
-years = range(2012,2013)
-#quarters = ["autumn", "winter", "spring", "summer"]
-quarters = ["autumn"]
-
-curriculums = {}
 
 
+years = range(2010,2014)
+quarters = ["autumn", "winter", "spring", "summer"]
+#quarters = ["autumn"]
+
+curricula = set()
+
+
+# grab the curricula
+print "Grabbing Curricula..."
 for y in years:
+    print "  ", y
     for q in quarters:
-        c_data = get_curriculum_data(y,q)
-        print pretty(c_data)
-        quit()
+        c_data = student.get_curriculum_data(y,q)
+        curricula = curricula | set([ c['CurriculumAbbreviation'] for c in c_data['Curricula']])
 
 
-r = urllib2.urlopen(college_url).read()
-r_json = simplejson.loads(r)
-print r_json
-
+# set up initial collegeabbr data
 collegeabbr = {}
-
-# creates a list of departments
-for item in r_json["Colleges"]:
-    string = item["CollegeAbbreviation"]
-    collegeabbr[string] = {}
-    
-
-
-
+for department in curricula:
+    collegeabbr[department] = {}
 
 #generates a json dictionary of all of the classes specified in the above "years" and "quarters" arrays
-for department in collegeabbr:
-    print department
+print "Grabbing courses..."
+
+for department in curricula:
+    print "  ", department
+    filename = os.path.join(subdir, department + ".csv")
+    if os.path.exists(filename):
+        print "    skipped"
+        continue
     for year in years:
+        print '    ', year
         for quarter in quarters:
-            classes = get_classes(year, quarter, department)
+            classes = student.get_classes(year, quarter, department)
+            if classes is None:
+                continue;
+            #print student.pretty(classes)
+
             for item in classes["Courses"]:
+                #print student.pretty(item)
                 num = item['CourseNumber']
                 if num not in collegeabbr[department]:
-                    extra_data = get_class_data(item['Href'])
-                    item['CourseDescription'] = extra_data['CourseDescription']
-                    item['CourseComment'] = extra_data['CourseComment']
-                    item['FirstYear'] = extra_data['FirstEffectiveTerm']['Year']
-                    item['FirstQuarter'] = extra_data['FirstEffectiveTerm']['Quarter']
-                    item['LastYear'] = extra_data['LastEffectiveTerm']['Year']
-                    item['LastQuarter'] = extra_data['LastEffectiveTerm']['Quarter']
-                    item['MinTermCredit'] = extra_data['MinimumTermCredit']
-                    item['MaxTermCredit'] = extra_data['MaximumTermCredit']
-                    item['GE_EC'] = extra_data['GeneralEducationRequirements']['EnglishComposition']
-                    item['GE_IS'] = extra_data['GeneralEducationRequirements']['IndividualsAndSocieties']
-                    item['GE_NW'] = extra_data['GeneralEducationRequirements']['NaturalWorld']
-                    item['GE_VLPA'] = extra_data['GeneralEducationRequirements']['VisualLiteraryAndPerformingArts']
-                    item['GE_QSR'] = extra_data['GeneralEducationRequirements']['QuantitativeAndSymbolicReasoning']
-                    item['GE_W'] = extra_data['GeneralEducationRequirements']['Writing']
-                    collegeabbr[department][num] = item
-    #break;
+                    #print item['Href']
+                    try:
+                        extra_data = student.get_class_data(item['Href'])
+                        if extra_data is not None:
+                            item['CourseDescription'] = extra_data['CourseDescription']
+                            item['CourseComment'] = extra_data['CourseComment']
+                            item['FirstYear'] = extra_data['FirstEffectiveTerm']['Year']
+                            item['FirstQuarter'] = extra_data['FirstEffectiveTerm']['Quarter']
+                            item['LastYear'] = extra_data['LastEffectiveTerm']['Year']
+                            item['LastQuarter'] = extra_data['LastEffectiveTerm']['Quarter']
+                            item['MinTermCredit'] = extra_data['MinimumTermCredit']
+                            item['MaxTermCredit'] = extra_data['MaximumTermCredit']
+                            if 'GeneralEducationRequirements' in extra_data:
+                                item['GE_EC'] = extra_data['GeneralEducationRequirements']['EnglishComposition']
+                                item['GE_IS'] = extra_data['GeneralEducationRequirements']['IndividualsAndSocieties']
+                                item['GE_NW'] = extra_data['GeneralEducationRequirements']['NaturalWorld']
+                                item['GE_VLPA'] = extra_data['GeneralEducationRequirements']['VisualLiteraryAndPerformingArts']
+                                item['GE_QSR'] = extra_data['GeneralEducationRequirements']['QuantitativeAndSymbolicReasoning']
+                                item['GE_W'] = extra_data['GeneralEducationRequirements']['Writing']
+                            else:
+                                item['GE_EC'] = false
+                                item['GE_IS'] = false
+                                item['GE_NW'] = false
+                                item['GE_VLPA'] = false
+                                item['GE_QSR'] = false
+                                item['GE_W'] = false
+
+                        collegeabbr[department][num] = item
+                    except Exception, e:
+                        print num
+                        print student.pretty(collegeabbr[department])
+                        continue
+
+
+
+    #print filename
+    writeCSV(filename, collegeabbr[department].items() )
+
 
 
 #Takes the dictionary of classes and export it to a .csv file
-fieldnames = ["CurriculumAbbreviation", "CourseNumber", "CourseTitle", "CourseTitleLong", "CourseDescription", "CourseComment", "Href", 
-    "Year", "Quarter", 'FirstYear', 'FirstQuarter', 'LastYear', 'LastQuarter', 'MinTermCredit', 'MaxTermCredit', 
-    "GE_EC", "GE_IS", "GE_NW", "GE_VLPA", "GE_QSR", "GE_W" ]
-data_file = open("coursedata.csv", "wt")
-csvwriter = csv.DictWriter(data_file, delimiter=",", fieldnames=fieldnames)
 
-print "writing csv file..."
-csvwriter.writerow(dict((fn,fn) for fn in fieldnames))
-for dept in collegeabbr:
-    print dept
-    for key,item in collegeabbr[dept].items():
+#data_file = open("coursedata.csv", "wt")
+#csvwriter = csv.DictWriter(data_file, delimiter=",", fieldnames=fieldnames)
+
+#print "writing csv file..."
+#csvwriter.writerow(dict((fn,fn) for fn in fieldnames))
+#for dept in collegeabbr:
+    #print dept
+#    for key,item in collegeabbr[dept].items():
         #print pretty(item)
-        csvwriter.writerow(item)
-data_file.close()
+#        csvwriter.writerow(item)
+#data_file.close()
