@@ -3,8 +3,13 @@ import django.db
 import csv
 import sys
 import os
-from main.models import Curriculum, Course, Section, Rating, Instructor
+from main.models import Curriculum, Course, Section, Rating, Instructor, Section, Meeting, Building, SectionRelation
 import pprint
+import simplejson
+
+
+def pretty(obj):
+	return simplejson.dumps(obj, sort_keys=True, indent=2)
 
 
 def GetCurriculum(abbr):
@@ -46,17 +51,24 @@ quarters = {
 	'summer' : 'SU'
 }
 
+def formatTime(row, index):
+	time1 = row['StartTime' + str(index)]
+	time2 = row['EndTime' + str(index)]
+	if time1 is not None and time2 is not None and len(time1) > 0 and len(time2) > 0:
+		return "%s - %s"%(time1,time2)
+	return None
 
 
 class Command(BaseCommand):
 	args = '<directory>'
-	help = 'Imports courses. \nUsage: import_courses %s'
+	help = 'Imports sections. \nUsage: import_section %s'
 
 	depts = {}
 	courses = {}
 	instructors = {}
 	coursetypes = {}
 	quarters = set()
+	times = set()
 
 
 	def handle(self, *args, **options):
@@ -87,28 +99,19 @@ class Command(BaseCommand):
 
 					#
 					for row in csvreader:
-						#print row
-						genedreqs = c.convertGenEdReqsToInt(row['GE_NW'], row['GE_VLPA'], row['GE_IS'], row['GE_W'], row['GE_EC'], row['GE_QSR'])
 
-						mincr = float(row['MinTermCredit'])
-						maxcr = float(row['MaxTermCredit']) 
-						maxcr = mincr if maxcr < maxcr else maxcr
+						#time0 = formatTime(row,0)
+						#time1 = formatTime(row,1)
+						#time2 = formatTime(row,2)
 
-						AddCourse(curriculum , 
-							int(row['CourseNumber']), 
-							row['CourseTitleLong'], 
-							row['CourseComment'], 
-							row['CourseDescription'],
-							genedreqs, 
-							int(row['FirstYear']),
-							quarters.get(row['FirstQuarter']),
-							int(row['LastYear']),
-							quarters.get(row['LastQuarter']),
-							mincr,
-							maxcr
-							 )
+						#if time0 is not None:
+						#	self.times.add(time0)
+						#if time1 is not None:
+						#	self.times.add(time1)
+						#if time2 is not None:
+						#	self.times.add(time2)
 
-
+		#print pretty(sorted(list(self.times)))
 
 
 

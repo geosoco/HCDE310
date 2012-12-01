@@ -74,7 +74,7 @@ class Course(models.Model):
         return val
 
     def __str__(self):
-        return "%s %d (%s)"%(self.name,self.abbreviation)        
+        return "%s %d: %s"%(self.idcurriculum.abbreviation, self.number, self.name)        
 
 class Instructor(models.Model):
     id = models.AutoField(primary_key=True)
@@ -134,6 +134,7 @@ class Meeting(models.Model):
     meetingtype = models.IntegerField(null=True, db_column='Type', blank=True) # Field name made lowercase.
     idinstance = models.ForeignKey(Section, db_column='idSection') # Field name made lowercase.
     idbuilding = models.ForeignKey(Building, db_column='idBuilding') # Field name made lowercase.
+    idroom = models.ForeignKey(Room, null=True, db_column='idRoom', blank=True) # Field name made lowercase.
     class Meta:
         db_table = u'Meeting'
 
@@ -144,4 +145,11 @@ class SectionRelation(models.Model):
     idparent = models.ForeignKey(Section, db_column='idParent', related_name='sectionrelation_parent') # Field name made lowercase.
     class Meta:
         db_table = u'SectionRelation'
+
+class Room(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=135, db_column='Name') # Field name made lowercase.
+    class Meta:
+        db_table = u'Room'
+
 

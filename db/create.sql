@@ -147,6 +147,18 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `scheduler`.`Room`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `scheduler`.`Room` ;
+
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Room` (
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `Name` VARCHAR(45) NOT NULL ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `scheduler`.`Meeting`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `scheduler`.`Meeting` ;
@@ -158,10 +170,12 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Meeting` (
   `EndTime` INT NULL ,
   `Type` INT NULL ,
   `idSection` INT NOT NULL ,
-  `idBuilding` INT NOT NULL ,
+  `idBuilding` INT NULL ,
+  `idRoom` INT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_Meetings_Instances1` (`idSection` ASC) ,
   INDEX `fk_Meetings_Building1` (`idBuilding` ASC) ,
+  INDEX `fk_Meeting_Room1` (`idRoom` ASC) ,
   CONSTRAINT `fk_Meetings_Instances1`
     FOREIGN KEY (`idSection` )
     REFERENCES `scheduler`.`Section` (`id` )
@@ -170,6 +184,11 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Meeting` (
   CONSTRAINT `fk_Meetings_Building1`
     FOREIGN KEY (`idBuilding` )
     REFERENCES `scheduler`.`Building` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Meeting_Room1`
+    FOREIGN KEY (`idRoom` )
+    REFERENCES `scheduler`.`Room` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
