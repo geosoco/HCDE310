@@ -16,11 +16,11 @@ def GetCurriculum(abbr):
 
 def AddCourse(dept, number, name, comment = "", descr = "", genedreqs = 0, firstyear = None, firstquarter = None, lastyear = None, lastquarter = None, mincredits = None, maxcredits = None):
 	try:
-		c = Course.objects.get(idcurriculum = dept, number = long(number))
+		c = Course.objects.get(iddepartment = dept, number = long(number))
 		return c
 	except Course.DoesNotExist, e:
 		try:
-			c = Course(name=name, number=long(number), idcurriculum=dept, comment = comment, description = descr)
+			c = Course(name=name, number=long(number), iddepartment=dept, comment = comment, description = descr)
 			c.genedreqs = genedreqs
 			c.firstyear = firstyear
 			c.firstquarter = firstquarter

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 import django.db
 import csv
-from main.models import Departments, Courses, Instances, Ratings, Instructors
+from main.models import Curriculum, Course, Section, Rating, Instructor
 import pprint
 from decimal import *
 
@@ -19,23 +19,23 @@ RATING_MAPPINGS = {
 }
 
 
-def AddDept(name, abbrev):
+def AddCurriculum(name, abbrev):
 	#print "Adding %s (%s)"%(abbrev,name)
 	try:
-		d = Departments.objects.get(abbreviation = abbrev)
+		d = Curricula.objects.get(abbreviation = abbrev)
 		#print d.id
 		return d
-	except Departments.DoesNotExist, e:
+	except Curricula.DoesNotExist, e:
 		try:
-			d = Departments(name=name,abbreviation=abbrev)
+			d = Curricula(name=name,abbreviation=abbrev)
 			d.save()
 			return d
 		except:
 			return None
 
-def AddDepartments(depts):
+def AddCurricula(depts):
 	for dept in depts.keys():
-		d = AddDept(depts[dept]['name'], dept)
+		d = AddCurriculum(depts[dept]['name'], dept)
 		#print id
 		if d is not None:
 			depts[dept]['id'] = d.id
@@ -67,11 +67,11 @@ def AddInstructors(instructors):
 
 def AddCourse(dept, number, name, comment = "", descr = ""):
 	try:
-		c = Courses.objects.get(iddepartment = dept, number = long(number))
+		c = Course.objects.get(idcurriculum = dept, number = long(number))
 		return c
-	except Courses.DoesNotExist, e:
+	except Course.DoesNotExist, e:
 		try:
-			c = Courses(name=name, number=long(number), iddepartment=dept, comment = comment, description = descr)
+			c = Course(name=name, number=long(number), idcurriculum=dept, comment = comment, description = descr)
 			c.save()
 			return c
 		except Exception, e:
@@ -81,7 +81,7 @@ def AddCourse(dept, number, name, comment = "", descr = ""):
 	except Exception, e:
 		print "AddCourse - exception: ", e
 
-def AddCourses(deptid, courses):
+def AddCourse(deptid, courses):
 	for course in courses.keys():
 		#print "[%s]"%course
 		#print courses[course]
@@ -114,14 +114,14 @@ def AddRating(rating):
 #		print "exception in AddRating: ", e
 #		return None
 
-def AddInstance(course_id, instructor_id, quarter, section, instructor_title, ratings):
+def AddSection(course_id, instructor_id, quarter, section, instructor_title, ratings):
 	try:
 		q = quarter[:2]
 		y = quarter[2:]
 		#print course_id
 		#print "%s %s"%(q, y)
 		r = AddRating(ratings)
-		i = Instances(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idratings = r, instructortitle = instructor_title, section = section )
+		i = Sections(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idratings = r, instructortitle = instructor_title, section = section )
 		i.idratings = r
 		i.save()
 		return i.id
@@ -184,18 +184,18 @@ class Command(BaseCommand):
 				#self.depts[dept]['courses'][coursenum]['instances'].append({ "id": -1, "rating": ratings, "quarter": quarter, "section": section, "instructortitle": instructor_title})
 
 			# step through
-			print "Adding Departments (%d)"%len(self.depts)
-			AddDepartments(self.depts)
+			print "Adding Curricula (%d)"%len(self.depts)
+			AddCurricula(self.depts)
 
 			print "Adding Instructors (%d)"%len(self.instructors)
 			AddInstructors(self.instructors)
 
-			print "Adding Courses"
+			print "Adding Course"
 			for dept in self.depts.keys():
 				print "%s (%d)"%(dept,self.depts[dept]['id'])
 				dept_obj = self.depts[dept]['obj']
 				#print dept_obj
-				AddCourses(dept_obj, self.depts[dept]['courses'])
+				AddCourse(dept_obj, self.depts[dept]['courses'])
 
 			# now do the instances
 			
@@ -224,7 +224,7 @@ class Command(BaseCommand):
 
 				#pprint.pprint(vars(c))
 
-				inst = AddInstance(c,i,quarter,section,instructor_title,ratings)
+				inst = AddSection(c,i,quarter,section,instructor_title,ratings)
 
 				
 

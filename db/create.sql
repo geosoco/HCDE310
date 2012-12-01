@@ -7,11 +7,11 @@ CREATE SCHEMA IF NOT EXISTS `scheduler` DEFAULT CHARACTER SET utf8 ;
 USE `scheduler` ;
 
 -- -----------------------------------------------------
--- Table `scheduler`.`Departments`
+-- Table `scheduler`.`Curriculum`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`Departments` ;
+DROP TABLE IF EXISTS `scheduler`.`Curriculum` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`Departments` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Curriculum` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Name` VARCHAR(128) NOT NULL ,
   `Abbreviation` VARCHAR(8) NOT NULL ,
@@ -24,17 +24,17 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `scheduler`.`Courses`
+-- Table `scheduler`.`Course`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`Courses` ;
+DROP TABLE IF EXISTS `scheduler`.`Course` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`Courses` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Course` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Number` INT NOT NULL ,
   `Name` VARCHAR(128) NULL ,
   `Comment` VARCHAR(256) NULL ,
   `Description` VARCHAR(2048) NULL ,
-  `idDepartment` INT NOT NULL ,
+  `idCurriculum` INT NOT NULL ,
   `GenEdReqs` INT NULL ,
   `FirstYear` INT NULL ,
   `FirstQuarter` CHAR(2) NULL ,
@@ -43,24 +43,24 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Courses` (
   `MinCredits` INT NULL ,
   `MaxCredits` INT NULL ,
   PRIMARY KEY (`id`) ,
-  INDEX `fk_Courses_Departments1` (`idDepartment` ASC) ,
+  INDEX `fk_Courses_Departments1` (`idCurriculum` ASC) ,
   INDEX `CourseNumber` (`Number` ASC) ,
   INDEX `CourseName` (`Name` ASC) ,
   INDEX `GenEdReqs` (`GenEdReqs` ASC) ,
   CONSTRAINT `fk_Courses_Departments1`
-    FOREIGN KEY (`idDepartment` )
-    REFERENCES `scheduler`.`Departments` (`id` )
+    FOREIGN KEY (`idCurriculum` )
+    REFERENCES `scheduler`.`Curriculum` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `scheduler`.`Instructors`
+-- Table `scheduler`.`Instructor`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`Instructors` ;
+DROP TABLE IF EXISTS `scheduler`.`Instructor` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`Instructors` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Instructor` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Name` VARCHAR(64) NOT NULL ,
   PRIMARY KEY (`id`) ,
@@ -69,11 +69,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `scheduler`.`Ratings`
+-- Table `scheduler`.`Rating`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`Ratings` ;
+DROP TABLE IF EXISTS `scheduler`.`Rating` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`Ratings` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Rating` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `CourseWhole` DECIMAL(8,4) NULL ,
   `CourseContent` DECIMAL(8,4) NULL ,
@@ -89,11 +89,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `scheduler`.`Instances`
+-- Table `scheduler`.`Section`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`Instances` ;
+DROP TABLE IF EXISTS `scheduler`.`Section` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`Instances` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Section` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Quarter` CHAR(2) NOT NULL ,
   `Section` VARCHAR(4) NULL ,
@@ -114,65 +114,87 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Instances` (
   INDEX `InstanceInstTitle` (`InstructorTitle` ASC) ,
   CONSTRAINT `fk_Instances_Instructor`
     FOREIGN KEY (`idInstructor` )
-    REFERENCES `scheduler`.`Instructors` (`id` )
+    REFERENCES `scheduler`.`Instructor` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Instances_Courses1`
     FOREIGN KEY (`idCourses` )
-    REFERENCES `scheduler`.`Courses` (`id` )
+    REFERENCES `scheduler`.`Course` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Instances_Ratings1`
     FOREIGN KEY (`idRatings` )
-    REFERENCES `scheduler`.`Ratings` (`id` )
+    REFERENCES `scheduler`.`Rating` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `scheduler`.`Meetings`
+-- Table `scheduler`.`Building`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`Meetings` ;
+DROP TABLE IF EXISTS `scheduler`.`Building` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`Meetings` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Building` (
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `Abbreviation` VARCHAR(12) NOT NULL ,
+  `Name` VARCHAR(128) NULL ,
+  `Latitude` DECIMAL(16,8) NULL ,
+  `Longitude` DECIMAL(16,8) NULL ,
+  PRIMARY KEY (`id`) ,
+  INDEX `abbrev` (`Abbreviation` ASC) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `scheduler`.`Meeting`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `scheduler`.`Meeting` ;
+
+CREATE  TABLE IF NOT EXISTS `scheduler`.`Meeting` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Day` INT NULL ,
   `StartTime` INT NULL ,
   `EndTime` INT NULL ,
   `Type` INT NULL ,
-  `idInstance` INT NOT NULL ,
-  `Building` VARCHAR(8) NULL ,
+  `idSection` INT NOT NULL ,
+  `idBuilding` INT NOT NULL ,
   PRIMARY KEY (`id`) ,
-  INDEX `fk_Meetings_Instances1` (`idInstance` ASC) ,
+  INDEX `fk_Meetings_Instances1` (`idSection` ASC) ,
+  INDEX `fk_Meetings_Building1` (`idBuilding` ASC) ,
   CONSTRAINT `fk_Meetings_Instances1`
-    FOREIGN KEY (`idInstance` )
-    REFERENCES `scheduler`.`Instances` (`id` )
+    FOREIGN KEY (`idSection` )
+    REFERENCES `scheduler`.`Section` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Meetings_Building1`
+    FOREIGN KEY (`idBuilding` )
+    REFERENCES `scheduler`.`Building` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `scheduler`.`SectionRelations`
+-- Table `scheduler`.`SectionRelation`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scheduler`.`SectionRelations` ;
+DROP TABLE IF EXISTS `scheduler`.`SectionRelation` ;
 
-CREATE  TABLE IF NOT EXISTS `scheduler`.`SectionRelations` (
+CREATE  TABLE IF NOT EXISTS `scheduler`.`SectionRelation` (
   `id` INT NOT NULL AUTO_INCREMENT ,
-  `idInstance` INT NOT NULL ,
+  `idSection` INT NOT NULL ,
   `idParent` INT NOT NULL ,
   PRIMARY KEY (`id`) ,
-  INDEX `fk_SectionRelations_Instances1` (`idInstance` ASC) ,
+  INDEX `fk_SectionRelations_Instances1` (`idSection` ASC) ,
   INDEX `fk_SectionRelations_Instances2` (`idParent` ASC) ,
   CONSTRAINT `fk_SectionRelations_Instances1`
-    FOREIGN KEY (`idInstance` )
-    REFERENCES `scheduler`.`Instances` (`id` )
+    FOREIGN KEY (`idSection` )
+    REFERENCES `scheduler`.`Section` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_SectionRelations_Instances2`
     FOREIGN KEY (`idParent` )
-    REFERENCES `scheduler`.`Instances` (`id` )
+    REFERENCES `scheduler`.`Section` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

@@ -1,19 +1,19 @@
 from django.core.management.base import BaseCommand, CommandError
 import django.db
 import csv
-from main.models import Departments, Courses, Instances, Ratings, Instructors
+from main.models import Curriculum, Course, Section, Rating, Instructor
 import pprint
 
 
 def AddDept(name, abbrev, url, firstyear, lastyear ):
 	#print "Adding %s (%s)"%(abbrev,name)
 	try:
-		d = Departments.objects.get(abbreviation = abbrev)
+		d = Curriculum.objects.get(abbreviation = abbrev)
 		#print d.id
 		return d
-	except Departments.DoesNotExist, e:
+	except Curriculum.DoesNotExist, e:
 		try:
-			d = Departments(name=name,abbreviation=abbrev, url=url, firstyear=firstyear, lastyear=lastyear)
+			d = Curriculum(name=name,abbreviation=abbrev, url=url, firstyear=firstyear, lastyear=lastyear)
 			d.save()
 			return d
 		except:

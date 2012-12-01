@@ -1,9 +1,10 @@
 from django.contrib import admin
-from main.models import Departments, Courses, Instructors, Ratings, Instances, Meetings
+from main.models import Curriculum, Course, Instructor, Rating, Section, Meeting, Building
 
-admin.site.register(Departments)
-admin.site.register(Courses)
-admin.site.register(Instructors)
-admin.site.register(Ratings)
-admin.site.register(Instances)
-admin.site.register(Meetings)
+admin.site.register(Curriculum)
+admin.site.register(Course)
+admin.site.register(Instructor)
+admin.site.register(Rating)
+admin.site.register(Section)
+admin.site.register(Meeting)
+admin.site.register(Building)

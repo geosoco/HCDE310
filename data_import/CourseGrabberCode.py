@@ -80,7 +80,7 @@ for department in curricula:
                 continue;
             #print student.pretty(classes)
 
-            for item in classes["Courses"]:
+            for item in classes["Course"]:
                 #print student.pretty(item)
                 num = item['CourseNumber']
                 if num not in collegeabbr[department]:
