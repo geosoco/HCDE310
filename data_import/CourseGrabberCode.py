@@ -15,7 +15,7 @@ fieldnames = ["CurriculumAbbreviation", "CourseNumber", "CourseTitle", "CourseTi
 
 def writeCSV(filename, rows):
     with open(filename, "wt") as data_file:
-        csvwriter = csv.DictWriter(data_file, delimiter=",", fieldnames=fieldnames)
+        csvwriter = csv.DictWriter(data_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=fieldnames)
         csvwriter.writerow(dict((fn,fn) for fn in fieldnames))
         for key,item in rows:
             try:
@@ -88,7 +88,7 @@ for department in curricula:
                     try:
                         extra_data = student.get_class_data(item['Href'])
                         if extra_data is not None:
-                            item['CourseDescription'] = extra_data['CourseDescription']
+                            item['CourseDescription'] = None if extra_data['CourseDescription'] is None else extra_data['CourseDescription'].encode('utf-8')
                             item['CourseComment'] = extra_data['CourseComment']
                             item['FirstYear'] = extra_data['FirstEffectiveTerm']['Year']
                             item['FirstQuarter'] = extra_data['FirstEffectiveTerm']['Quarter']
@@ -113,6 +113,9 @@ for department in curricula:
 
                         collegeabbr[department][num] = item
                     except Exception, e:
+                        print e
+                        print student.pretty(e)
+
                         print num
                         print student.pretty(collegeabbr[department])
                         continue
