@@ -35,7 +35,7 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Courses` (
   `Comment` VARCHAR(256) NULL ,
   `Description` VARCHAR(2048) NULL ,
   `idDepartment` INT NOT NULL ,
-  `GenEdReqs` SET('V','I','N','Q','E','W') NULL ,
+  `GenEdReqs` INT NULL ,
   `FirstYear` INT NULL ,
   `FirstQuarter` CHAR(2) NULL ,
   `LastYear` INT NULL ,
