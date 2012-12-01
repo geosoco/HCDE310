@@ -20,22 +20,32 @@ class Departments(models.Model):
     class Meta:
         db_table = u'Departments'
 
+    def __str__(self):
+        return "%s (%s)"%(self.name,self.abbreviation)
+
 
 class Courses(models.Model):
-    NW = 'N'
-    VLPA = 'V'
-    IS = 'I'
-    W = 'W'
-    EC = 'E'
-    QSR = 'Q'
-    GEN_ED_REQ_CHOICES = (
-        (NW, 'NW'),
-        (VLPA, 'VLPA'),
-        (IS, 'I&S'),
-        (W, 'W'),
-        (QSR, 'QSR'),
-        (EC, 'EC')
-    )
+    NW = 1
+    VLPA = 2
+    IS = 4
+    W = 8
+    EC = 16
+    QSR = 32
+
+    #NW = 'N'
+    #VLPA = 'V'
+    #IS = 'I'
+    #W = 'W'
+    #EC = 'E'
+    #QSR = 'Q'
+    #GEN_ED_REQ_CHOICES = (
+    #    (NW, 'NW'),
+    #    (VLPA, 'VLPA'),
+    #   (IS, 'I&S'),
+    #    (W, 'W'),
+    #    (QSR, 'QSR'),
+    #    (EC, 'EC')
+    #)
 
     id = models.AutoField(primary_key=True)
     number = models.IntegerField(db_column='Number') # Field name made lowercase.
@@ -43,7 +53,7 @@ class Courses(models.Model):
     comment = models.CharField(max_length=768, db_column='Comment', blank=True) # Field name made lowercase.
     description = models.CharField(max_length=6144, db_column='Description', blank=True) # Field name made lowercase.
     iddepartment = models.ForeignKey(Departments, db_column='idDepartment') # Field name made lowercase.
-    genedreqs = models.CharField(max_length=33, db_column='GenEdReqs', blank=True, choices=GEN_ED_REQ_CHOICES)
+    genedreqs = models.IntegerField(db_column='GenEdReqs', blank=True)
     firstyear = models.IntegerField(null=True, db_column='FirstYear', blank=True) # Field name made lowercase.
     firstquarter = models.CharField(max_length=6, db_column='FirstQuarter', blank=True) # Field name made lowercase.
     lastyear = models.IntegerField(null=True, db_column='LastYear', blank=True) # Field name made lowercase.
@@ -53,11 +63,27 @@ class Courses(models.Model):
     class Meta:
         db_table = u'Courses'
 
+    def convertGenEdReqsToInt(self, nw, vlpa, iands, w, ec, qsr):
+        val = 0
+        val |= self.NW if nw.lower() == 'true' else 0
+        val |= self.VLPA if vlpa.lower() == 'true' else 0
+        val |= self.IS if iands.lower() == 'true' else 0
+        val |= self.W if w.lower() == 'true' else 0
+        val |= self.EC if ec.lower() == 'true' else 0
+        val |= self.QSR if qsr.lower() == 'true' else 0
+        return val
+
+    def __str__(self):
+        return "%s %d (%s)"%(self.name,self.abbreviation)        
+
 class Instructors(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=192, db_column='Name') # Field name made lowercase.
     class Meta:
         db_table = u'Instructors'        
+
+    def __str__(self):
+        return self.name
 
 
 class Ratings(models.Model):
