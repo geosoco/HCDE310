@@ -105,10 +105,10 @@ class Section(models.Model):
     id = models.AutoField(primary_key=True)
     quarter = models.CharField(max_length=6, db_column='Quarter') # Field name made lowercase.
     section = models.CharField(max_length=12, db_column='Section', blank=True) # Field name made lowercase.
-    idinstructor = models.ForeignKey(Instructor, db_column='idInstructor', blank=True) # Field name made lowercase.
+    idinstructor = models.ForeignKey(Instructor, null=True, db_column='idInstructor', blank=True) # Field name made lowercase.
     idcourse = models.ForeignKey(Course, db_column='idCourse') # Field name made lowercase.
-    idrating = models.ForeignKey(Rating, db_column='idRating', blank=True) # Field name made lowercase.
-    instructortitle = models.CharField(max_length=192, db_column='InstructorTitle', blank=True) # Field name made lowercase.
+    idrating = models.ForeignKey(Rating, null=True, db_column='idRating', blank=True) # Field name made lowercase.
+    instructortitle = models.CharField(max_length=192, null=True, db_column='InstructorTitle', blank=True) # Field name made lowercase.
     year = models.IntegerField(db_column='Year') # Field name made lowercase.
     numenrolled = models.IntegerField(null=True, db_column='NumEnrolled', blank=True) # Field name made lowercase.
     maxenrollment = models.IntegerField(null=True, db_column='MaxEnrollment', blank=True) # Field name made lowercase.
@@ -137,7 +137,10 @@ class MeetingType(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=192, db_column='Name') # Field name made lowercase.
     class Meta:
-        db_table = u'MeetingType'        
+        db_table = u'MeetingType'
+
+    def __str__(self):
+        return "%s (%d)"%(self.name, self.id)
 
 class Meeting(models.Model):
     id = models.AutoField(primary_key=True)

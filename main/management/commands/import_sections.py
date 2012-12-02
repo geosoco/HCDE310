@@ -7,159 +7,7 @@ from main.models import Curriculum, Course, Section, Rating, Instructor, Section
 import pprint
 import simplejson
 
-
-
-quarters = {
-	'autumn' : 'AU',
-	'winter' : 'WI',
-	'spring' : 'SP',
-	'summer' : 'SU'
-}
-
-
-#
-#
-#
-def pretty(obj):
-	return simplejson.dumps(obj, sort_keys=True, indent=2)
-
-
-#
-def dbSafeGet(model, **kwargs):
-	try: 
-		o = model.objects.get(**kwargs)
-		return o
-	except o.DoesNotExist, e:
-		return None
-
-#
-def dbSafeGetOrAdd(model, **kwargs):
-	try: 
-		o = model.objects.get(**kwargs)
-		return o
-	except model.DoesNotExist, e:
-		try:
-			o = model(**kwargs)
-			o.save()
-			return o
-		except Exception, e:
-			print "Exception in dbSafeGetOrAdd", e
-			return None
-
-
-#
-# Curriculum
-#
-def GetCurriculum(abbr):
-	return dbSafeGet(Curriculum, **{ 'abbreviation': abbr })
-#	try:
-#		d = Curriculum.objects.get(abbreviation = abbr)
-#		return d
-#	except Curriculum.DoesNotExist, e:
-#		return None
-
-#
-# Courses 
-#
-def GetCourse(curriculum, num):
-	return dbSafeGet(Course, **{'idcurriculum': curriculum, 'number': num})
-
-#	try:
-#		c = Course.objects.get(idcurriculum=curriculum, number=num)
-#		return c
-#	except Course.DoesNotExist, e:
-#		return None
-
-#
-#
-# Instructor
-#
-#
-def AddInstructor(name):
-	return dbSafeGetOrAdd(Instructor, **{'name': name})
-#	try:
-#		i = Instructor.objects.get(name = name)
-#		return i
-#	except Instructor.DoesNotExist, e:
-#		try:
-#			i = Instructor(name=name)
-#			i.save()
-#			return i
-#		except:
-#			return None
-
-
-#
-#
-# Room
-#
-#
-
-def AddRoom(name, idbuilding):
-	return dbSafeGetOrAdd(Room, **{'name': name, 'idbuilding': idbuilding})
-
-#
-#
-# Building
-#
-#
-
-def AddBuilding(name):
-	return dbSafeGetOrAdd(Building, **{'name': name})
-
-#
-#
-# MeetingType
-#
-#
-def AddMeetingType(name):
-	return dbSafeGetOrAdd(MeetingType, **{'name': name})
-
-
-
-#	try:
-#		b = Building.objects.get(name = name)
-#		return b
-#	except Building.DoesNotExist, e:
-#		try:
-#			b = Building(name=name)
-#			b.save()
-#			return b
-#		except Exception, e:
-#			return None 
-
-#
-#
-# Section
-#
-#
-def GetSection(course, year, quarter, section):
-	return dbSafeGet(Section, **{'idcourse': course, 'year':year, 'quarter':quarter, 'section':section})
-#	try:
-#		s = Section.objects.get(idcourse=course, year=year, quarter=quarter, section=section)
-#		return s
-#	except Course.DoesNotExist, e:
-#		return None
-
-#
-def AddSection(course, year, quarter, section, instructor = None, enrolled = None, maxenrolled = None, sln = None, classurl = None ):
-	try:
-		s = Section(
-			quarter=quarter, 
-			section=section,
-			idinstructor = instructor,
-			idcourse = course,
-			instructortitle = None,
-			year = year,
-			numenrolled = enrolled,
-			maxenrollment = maxenrolled,
-			classwebsite = classurl,
-			sln = sln
-			)
-		s.save()
-	except Exception,e:
-		print "Failed to add section"
-		return None
+from utils import *
 
 
 
@@ -205,23 +53,6 @@ def makeDaysFromStr(str):
 #
 #
 #
-def buildMeeting(row, index):
-	idx = str(index)
-	ret = {}
-	days = makeDaysFromStr(row['DaysOfWeek' + idx])
-	starttime = row['StartTime' + idx]
-	tba = row['DaysOfWeekToBeArranged' + idx].lower() == 'true'
-	if len(starttime) == 0 and tba == False and days == 0:
-		return None
-
-	ret['building'] = row['Building' + idx]
-	ret['days'] = days
-	ret['daystba'] = tba
-	ret['meetingtype'] = row['MeetingType' + idx]
-	ret['starttime'] = starttime
-	ret['endtime'] = row['EndTime' + idx]
-	return ret
-
 
 def inflateMeeting(row):
 	meetings = []
@@ -247,17 +78,7 @@ def inflateMeeting(row):
 	return meetings
 
 
-def cachedSafeGetOrAdd(dict, key, method, **kwargs):
-	ret = None
-	if key is not None:
-		if key in dict:
-			ret = dict[key]
-		else:
-			print "%s not in dict, trying to grab"%key
-			ret = method(**kwargs)
-			if ret is not None:
-				dict[key] = ret
-	return ret
+
 
 
 class Command(BaseCommand):
@@ -323,19 +144,10 @@ class Command(BaseCommand):
 
 						instructor = cachedSafeGetOrAdd(self.instructors, inst_name, AddInstructor, **{'name': inst_name})
 
-						print "instructor added..."
-						print instructor
-						#if inst_name is not None:
-						#	if inst_name is in self.instructors:
-						#		instructor = self.instructors
-						#	else:
-						#		instructor = AddInstructor(inst_name)
-						#		if instructor is not None:
-						#			self.instructors[inst_name] = instructor
-
 						# add section
 						kwargs = {}
 						kwargs['quarter'] = quarters[row['Quarter'].lower()]
+
 						kwargs['year'] = row['Year']
 						kwargs['section'] = row['SectionID'] if 'SectionID' in row else row['PrimarySection']
 						kwargs['idinstructor'] = instructor
@@ -346,8 +158,12 @@ class Command(BaseCommand):
 						kwargs['classwebsite'] = row['ClassWebsiteUrl']
 						section = dbSafeGetOrAdd(Section, **kwargs)
 
-						print "section seems to have been added..."
-						print section
+						if section is None:
+							print "Section not added", section
+							continue
+
+						#print "section seems to have been added..."
+						#print section
 
 
 						# meetings
@@ -356,6 +172,7 @@ class Command(BaseCommand):
 							bldg_name = m['Building']
 							bldg = cachedSafeGetOrAdd(self.buildings, bldg_name, AddBuilding, **{'name': bldg_name})
 
+							room = None
 							if bldg is not None:
 								room_name = m['Room']
 								room = cachedSafeGetOrAdd(self.rooms, room_name, AddRoom, **{'name': room_name, 'idbuilding': bldg })
@@ -363,38 +180,12 @@ class Command(BaseCommand):
 							mtg_type_name = m['Type']
 							mtg_type = cachedSafeGetOrAdd(self.meetingtypes, mtg_type_name, AddMeetingType, **{'name': mtg_type_name})
 
+							mtg_start = parseTime(m['Start'])
+							mtg_end = parseTime(m['End'])
+							mtg_days = makeDaysFromStr(m['Days'])
 
-							#add meeting
-
-
-
-						#d0 = row['DaysOfWeek0']
-						#d1 = row['DaysOfWeek1']
-						#d2 = row['DaysOfWeek2']
-
-						#if d0 is not None:
-						#	self.daysofweek.add(d0)
-						#if d1 is not None:
-						#	self.daysofweek.add(d1)
-						#if d2 is not None:
-						#	self.daysofweek.add(d2)
-						#time0 = formatTime(row,0)
-						#time1 = formatTime(row,1)
-						#time2 = formatTime(row,2)
-
-						#if time0 is not None:
-						#	self.times.add(time0)
-						#if time1 is not None:
-						#	self.times.add(time1)
-						#if time2 is not None:
-						#	self.times.add(time2)
-
-		#print pretty(sorted(list(self.times)))
-		#days = sorted(list(self.daysofweek))
-		#for d in days:
-		#	s = "%s : %d"%(d, makeDaysFromStr(d))
-		#	print s
-		
+							meeting = Meeting(day = mtg_days, starttime = mtg_start, endtime = mtg_end, idinstance = section, idroom = room, idmeetingtype = mtg_type)
+							meeting.save()
 
 
 
