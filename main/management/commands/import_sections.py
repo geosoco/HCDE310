@@ -146,7 +146,7 @@ class Command(BaseCommand):
 
 						# add section
 						kwargs = {}
-						kwargs['quarter'] = quarters[row['Quarter'].lower()]
+						kwargs['quarter'] = QUARTERS[row['Quarter'].lower()]
 
 						kwargs['year'] = row['Year']
 						kwargs['section'] = row['SectionID'] if 'SectionID' in row else row['PrimarySection']

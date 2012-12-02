@@ -1,8 +1,8 @@
 import simplejson
 import django.db
+from main.models import *
 
-
-quarters = {
+QUARTERS = {
 	'autumn' : 'AU',
 	'winter' : 'WI',
 	'spring' : 'SP',

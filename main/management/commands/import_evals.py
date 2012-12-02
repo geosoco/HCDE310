@@ -4,6 +4,7 @@ import csv
 from main.models import Curriculum, Course, Section, Rating, Instructor
 import pprint
 from decimal import *
+from utils import *
 
 
 RATING_MAPPINGS = {
@@ -19,23 +20,10 @@ RATING_MAPPINGS = {
 }
 
 
-def AddCurriculum(name, abbrev):
-	#print "Adding %s (%s)"%(abbrev,name)
-	try:
-		d = Curricula.objects.get(abbreviation = abbrev)
-		#print d.id
-		return d
-	except Curricula.DoesNotExist, e:
-		try:
-			d = Curricula(name=name,abbreviation=abbrev)
-			d.save()
-			return d
-		except:
-			return None
 
 def AddCurricula(depts):
 	for dept in depts.keys():
-		d = AddCurriculum(depts[dept]['name'], dept)
+		d = GetCurriculum(dept)
 		#print id
 		if d is not None:
 			depts[dept]['id'] = d.id
@@ -43,17 +31,7 @@ def AddCurricula(depts):
 			depts[dept]['id'] = -1
 		depts[dept]['obj'] = d
 		
-def AddInstructor(name):
-	try:
-		i = Instructor.objects.get(name = name)
-		return i
-	except Instructor.DoesNotExist, e:
-		try:
-			i = Instructor(name=name)
-			i.save()
-			return i
-		except:
-			return None
+
 
 def AddInstructors(instructors):
 	for instructor in instructors.keys():
@@ -65,27 +43,12 @@ def AddInstructors(instructors):
 		instructors[instructor]['obj'] = i
 
 
-def AddCourse(dept, number, name, comment = "", descr = ""):
-	try:
-		c = Course.objects.get(idcurriculum = dept, number = long(number))
-		return c
-	except Course.DoesNotExist, e:
-		try:
-			c = Course(name=name, number=long(number), idcurriculum=dept, comment = comment, description = descr)
-			c.save()
-			return c
-		except Exception, e:
-			print "exception!"
-			print e
-			return None
-	except Exception, e:
-		print "AddCourse - exception: ", e
 
-def AddCourse(deptid, courses):
+def AddCourses(deptid, courses):
 	for course in courses.keys():
 		#print "[%s]"%course
 		#print courses[course]
-		c = AddCourse(deptid, course, "", "", "")
+		c = GetCourse(deptid, course)
 		if c is not None:
 			courses[course]['id'] = c.id
 		else:
@@ -104,7 +67,7 @@ def AddRating(rating):
 		r.amountlearned = Decimal(rating["Learned"]) if len(rating["Learned"]) > 0 else None
 		r.grading = Decimal(rating["Grading"]) if len(rating["Grading"]) > 0 else None
 
-		print r.coursewhole
+		#print r.coursewhole
 
 		#print rating
 		#print ",".join(rating.values())
@@ -116,13 +79,12 @@ def AddRating(rating):
 
 def AddSection(course_id, instructor_id, quarter, section, instructor_title, ratings):
 	try:
-		q = quarter[:2]
+		q = quarter[:2].upper()
 		y = quarter[2:]
 		#print course_id
 		#print "%s %s"%(q, y)
 		r = AddRating(ratings)
-		i = Section(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idratings = r, instructortitle = instructor_title, section = section )
-		i.idratings = r
+		i = Section(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idrating = r, instructortitle = instructor_title, section = section )
 		i.save()
 		return i.id
 	except Exception, e:
@@ -195,7 +157,7 @@ class Command(BaseCommand):
 				print "%s (%d)"%(dept,self.depts[dept]['id'])
 				dept_obj = self.depts[dept]['obj']
 				#print dept_obj
-				AddCourse(dept_obj, self.depts[dept]['courses'])
+				AddCourses(dept_obj, self.depts[dept]['courses'])
 
 			# now do the instances
 			
@@ -222,39 +184,11 @@ class Command(BaseCommand):
 				d = self.depts[dept]['obj']
 				c = self.depts[dept]['courses'][coursenum]['obj']
 
-				#pprint.pprint(vars(c))
-
-				inst = AddSection(c,i,quarter,section,instructor_title,ratings)
+				if c is not None:
+					inst = AddSection(c,i,quarter,section,instructor_title,ratings)
+				else:
+					self.stderr.write("no course found for %s %s\n"%(dept,coursenum))
 
 				
-
-		#print self.coursetypes.keys()
-
-		#for ct in self.coursetypes.keys():
-		#	name = self.coursetypes[ct]
-		#	print "%s:%s"%(ct,name)
-
-
-		#for i in self.instructors.keys():
-		#	print "\n%s taught %d courses"%(i,self.instructors[i]['courses'])
-		#	for course in self.instructors[i]['titles']:
-		#		print "\t%s"%(course)
-
-		#for dept in sorted(self.depts.keys()):
-		#	print "\n%s"%(dept)
-		#	for num in sorted(self.depts[dept]['courses']):
-		#		print "\t%3s - %d"%(num,self.depts[dept]['courses'][num])
-
-		#print "\n\n"
-		#for q in self.quarters:
-		#	print q
-
-		
-			#for course in self.depts[dept]['courses'].keys():
-				#print "    %s"%(course)
-				#print "        %s"%(self.depts[dept]['courses'][course]['ratings'])
-
-
-
 
 
