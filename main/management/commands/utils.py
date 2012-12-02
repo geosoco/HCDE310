@@ -2,6 +2,7 @@ import simplejson
 import django.db
 from main.models import *
 
+
 QUARTERS = {
 	'autumn' : 'AU',
 	'winter' : 'WI',

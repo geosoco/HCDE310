@@ -19,3 +19,7 @@ settings.pyc
 # data files
 *.csv
 *.zip
+
+#deployed dir
+deployed_static/*
+
