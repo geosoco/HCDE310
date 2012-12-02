@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^instructor/(?P<id>\d+)$', 'main.views.instructor'),
     url(r'^dept/(?P<id>\d+)$', 'main.views.department'),
     url(r'^course/(?P<id>\d+)$', 'main.views.course'),
+    url(r'^course/(?P<curriculum>[\w\s]+)/(?P<num>\d{3})$', 'main.views.course_readable'),
     # Examples:
     # url(r'^$', 'HCDE310.views.home', name='home'),
     # url(r'^HCDE310/', include('HCDE310.foo.urls')),

@@ -31,3 +31,8 @@ def course(request, id):
 	inst = Section.objects.filter(idcourse=c)
 	return render_to_response('course.html', {"course" : c, "instances" : inst})
 
+def course_readable(request, curriculum, num):
+	cur = get_object_or_404(Curriculum, abbreviation=curriculum)
+	c = get_object_or_404(Course, idcurriculum=cur, number=num)
+	inst = Section.objects.filter(idcourse=c)
+	return render_to_response('course.html', {"course" : c, "instances" : inst})	
