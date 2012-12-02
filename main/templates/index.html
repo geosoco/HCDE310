@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>UW CourseWizard</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="icon" type="image/png" href="favicon.ico">
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/default.css">
+        <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet" media="screen">
+    </head>
+    
+    <body>
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+        <div class="container">
+          <div class="jumbotron">
+            <br>
+            <br>
+            <br>
+            <br>
+            <h1>UW CourseWizard</h1>
+            <p class="lead">Search through the UW Course Catalog for classes, professors and more!</p>
+            <form class="form-search">
+              <div class="input-append">
+                <input type="text" class="input-xxlarge search-query">
+                <button type="submit" class="btn">Search</button>
+              </div>
+            </form>
+            <div class="accordion" id="accordion2">
+              <div class="accordion-group">
+                <div class="accordion-heading">
+                  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+                    Advanced Options
+                  </a>
+                </div>
+                <div id="collapseOne" class="accordion-body collapse in">
+                  <div class="accordion-inner">
+                    Time:
+                    <br>
+                    <select>
+                      <option>ANY</option>
+                      <option>7:30AM</option>
+                      <option>8:30AM</option>
+                      <option>9:30AM</option>
+                      <option>10:30AM</option>
+                    </select>
+                    to
+                    <select>
+                      <option>ANY</option>
+                      <option>7:30AM</option>
+                      <option>8:30AM</option>
+                      <option>9:30AM</option>
+                      <option>10:30AM</option>
+                    </select>
+                    <br>
+                    Credit Type:
+                    <br>
+                    <select>
+                      <option>ANY</option>
+                      <option>NW</option>
+                      <option>VLPA</option>
+                      <option>I&amp;S</option>
+                      <option>W</option>
+                      <option>C</option>
+                      <option>QSR</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <a class="btn btn-large btn-primary" href="#">Browse Classes</a>
+            <a class="btn btn-large btn-primary" href="#">Browse Professors</a>
+            <br>
+            <br>
+            
+          </div>
+        </div> 
+        
+    </body>
+</html>
