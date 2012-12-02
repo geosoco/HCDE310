@@ -14,3 +14,8 @@
 settings.py
 settings.pyc
 *.pyc
+
+
+# data files
+*.csv
+*.zip
