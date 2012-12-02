@@ -87,7 +87,8 @@ def get_classes(year, quarter, department):
 	params = {}
 	params['year'] = year
 	params['quarter'] = quarter
-	params['curriculum_abbreviation'] = urllib.quote(department)
+	params['curriculum_abbreviation'] = department
+
 	params['page_size'] = 500
 	return get_student_json_data('course', params)
 

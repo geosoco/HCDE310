@@ -97,10 +97,10 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Section` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Quarter` CHAR(2) NOT NULL ,
   `Section` VARCHAR(4) NULL ,
-  `idInstructor` INT NOT NULL ,
-  `idCourses` INT NOT NULL ,
-  `idRatings` INT NOT NULL ,
-  `InstructorTitle` VARCHAR(64) NOT NULL ,
+  `idInstructor` INT NULL ,
+  `idCourse` INT NOT NULL ,
+  `idRating` INT NULL ,
+  `InstructorTitle` VARCHAR(64) NULL ,
   `Year` INT NOT NULL ,
   `NumEnrolled` INT NULL ,
   `MaxEnrollment` INT NULL ,
@@ -108,22 +108,23 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Section` (
   `SLN` INT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_Instances_Instructor` (`idInstructor` ASC) ,
-  INDEX `fk_Instances_Courses1` (`idCourses` ASC) ,
-  INDEX `fk_Instances_Ratings1` (`idRatings` ASC) ,
-  INDEX `InstanceQuarter` (`Quarter` ASC) ,
-  INDEX `InstanceInstTitle` (`InstructorTitle` ASC) ,
+  INDEX `fk_Instances_Courses1` (`idCourse` ASC) ,
+  INDEX `fk_Instances_Ratings1` (`idRating` ASC) ,
+  INDEX `SectionQuarter` (`Quarter` ASC) ,
+  INDEX `SectionInstTitle` (`InstructorTitle` ASC) ,
+  INDEX `SectionYear` (`Year` ASC) ,
   CONSTRAINT `fk_Instances_Instructor`
     FOREIGN KEY (`idInstructor` )
     REFERENCES `scheduler`.`Instructor` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Instances_Courses1`
-    FOREIGN KEY (`idCourses` )
+    FOREIGN KEY (`idCourse` )
     REFERENCES `scheduler`.`Course` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Instances_Ratings1`
-    FOREIGN KEY (`idRatings` )
+    FOREIGN KEY (`idRating` )
     REFERENCES `scheduler`.`Rating` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -154,6 +155,26 @@ DROP TABLE IF EXISTS `scheduler`.`Room` ;
 CREATE  TABLE IF NOT EXISTS `scheduler`.`Room` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `Name` VARCHAR(45) NOT NULL ,
+  `idBuilding` INT NOT NULL ,
+  PRIMARY KEY (`id`) ,
+  INDEX `fk_Room_Building1` (`idBuilding` ASC) ,
+  INDEX `Index_Room_Name` (`Name` ASC) ,
+  CONSTRAINT `fk_Room_Building1`
+    FOREIGN KEY (`idBuilding` )
+    REFERENCES `scheduler`.`Building` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `scheduler`.`MeetingType`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `scheduler`.`MeetingType` ;
+
+CREATE  TABLE IF NOT EXISTS `scheduler`.`MeetingType` (
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `Name` VARCHAR(64) NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
 
@@ -168,27 +189,26 @@ CREATE  TABLE IF NOT EXISTS `scheduler`.`Meeting` (
   `Day` INT NULL ,
   `StartTime` INT NULL ,
   `EndTime` INT NULL ,
-  `Type` INT NULL ,
   `idSection` INT NOT NULL ,
-  `idBuilding` INT NULL ,
   `idRoom` INT NULL ,
+  `idMeetingType` INT NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_Meetings_Instances1` (`idSection` ASC) ,
-  INDEX `fk_Meetings_Building1` (`idBuilding` ASC) ,
   INDEX `fk_Meeting_Room1` (`idRoom` ASC) ,
+  INDEX `fk_Meeting_MeetingType1` (`idMeetingType` ASC) ,
   CONSTRAINT `fk_Meetings_Instances1`
     FOREIGN KEY (`idSection` )
     REFERENCES `scheduler`.`Section` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Meetings_Building1`
-    FOREIGN KEY (`idBuilding` )
-    REFERENCES `scheduler`.`Building` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_Meeting_Room1`
     FOREIGN KEY (`idRoom` )
     REFERENCES `scheduler`.`Room` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Meeting_MeetingType1`
+    FOREIGN KEY (`idMeetingType` )
+    REFERENCES `scheduler`.`MeetingType` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

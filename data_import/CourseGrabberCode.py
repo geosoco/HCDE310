@@ -76,11 +76,13 @@ for department in curricula:
         print '    ', year
         for quarter in quarters:
             classes = student.get_classes(year, quarter, department)
-            if classes is None:
+            if classes is None or "Courses" not in classes:
+                print "bad data returned for %s %d %s"%(quarter,  year, department)
+                print student.pretty(classes)
                 continue;
             #print student.pretty(classes)
 
-            for item in classes["Course"]:
+            for item in classes["Courses"]:
                 #print student.pretty(item)
                 num = item['CourseNumber']
                 if num not in collegeabbr[department]:

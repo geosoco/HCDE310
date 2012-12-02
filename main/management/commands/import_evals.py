@@ -45,11 +45,11 @@ def AddCurricula(depts):
 		
 def AddInstructor(name):
 	try:
-		i = Instructors.objects.get(name = name)
+		i = Instructor.objects.get(name = name)
 		return i
-	except Instructors.DoesNotExist, e:
+	except Instructor.DoesNotExist, e:
 		try:
-			i = Instructors(name=name)
+			i = Instructor(name=name)
 			i.save()
 			return i
 		except:
@@ -95,7 +95,7 @@ def AddCourse(deptid, courses):
 
 def AddRating(rating):
 #	try:
-		r = Ratings(numsurveyed = rating["NumSurveyed"], numenrolled = rating["NumEnrolled"])
+		r = Rating(numsurveyed = rating["NumSurveyed"], numenrolled = rating["NumEnrolled"])
 		r.coursewhole = Decimal(rating["Course"]) if len(rating["Course"]) > 0 else None
 		r.coursecontent = Decimal(rating["Content"]) if len(rating["Content"]) > 0 else None
 		r.instructoreffectiveness = Decimal(rating["Effectiveness"]) if len(rating["Effectiveness"]) > 0 else None
@@ -121,7 +121,7 @@ def AddSection(course_id, instructor_id, quarter, section, instructor_title, rat
 		#print course_id
 		#print "%s %s"%(q, y)
 		r = AddRating(ratings)
-		i = Sections(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idratings = r, instructortitle = instructor_title, section = section )
+		i = Section(quarter = q, year = y, idinstructor = instructor_id, idcourse = course_id, idratings = r, instructortitle = instructor_title, section = section )
 		i.idratings = r
 		i.save()
 		return i.id
