@@ -23,3 +23,6 @@ settings.pyc
 #deployed dir
 deployed_static/*
 
+#
+.DS_STORE
+
