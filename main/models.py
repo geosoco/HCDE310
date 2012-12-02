@@ -18,7 +18,7 @@ class Curriculum(models.Model):
     lastyear = models.IntegerField(db_column='LastYear') # Field name made lowercase.
     url = models.CharField(max_length=384, db_column='Url', blank=True) # Field name made lowercase.
     class Meta:
-        db_table = u'Curriculum'
+        db_table = u'curriculum'
 
     def __str__(self):
         return "%s (%s)"%(self.name,self.abbreviation)
@@ -61,7 +61,7 @@ class Course(models.Model):
     mincredits = models.IntegerField(null=True, db_column='MinCredits', blank=True) # Field name made lowercase.
     maxcredits = models.IntegerField(null=True, db_column='MaxCredits', blank=True) # Field name made lowercase.
     class Meta:
-        db_table = u'Course'
+        db_table = u'course'
 
     def convertGenEdReqsToInt(self, nw, vlpa, iands, w, ec, qsr):
         val = 0
@@ -80,7 +80,7 @@ class Instructor(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=192, db_column='Name') # Field name made lowercase.
     class Meta:
-        db_table = u'Instructor'        
+        db_table = u'instructor'        
 
     def __str__(self):
         return self.name
@@ -98,7 +98,7 @@ class Rating(models.Model):
     numsurveyed = models.IntegerField(db_column='NumSurveyed') # Field name made lowercase.
     numenrolled = models.IntegerField(db_column='NumEnrolled') # Field name made lowercase.
     class Meta:
-        db_table = u'Rating'
+        db_table = u'rating'
 
 
 class Section(models.Model):
@@ -115,7 +115,7 @@ class Section(models.Model):
     classwebsite = models.CharField(max_length=384, db_column='ClassWebsite', blank=True) # Field name made lowercase.
     sln = models.IntegerField(null=True, db_column='SLN', blank=True) # Field name made lowercase.
     class Meta:
-        db_table = u'Section'
+        db_table = u'section'
 
 class Building(models.Model):
     id = models.AutoField(primary_key=True)
@@ -124,20 +124,20 @@ class Building(models.Model):
     latitude = models.DecimalField(decimal_places=8, null=True, max_digits=18, db_column='Latitude', blank=True) # Field name made lowercase.
     longitude = models.DecimalField(decimal_places=8, null=True, max_digits=18, db_column='Longitude', blank=True) # Field name made lowercase.
     class Meta:
-        db_table = u'Building'   
+        db_table = u'building'   
 
 class Room(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=135, db_column='Name') # Field name made lowercase.
     idbuilding = models.ForeignKey(Building, db_column='idBuilding') # Field name made lowercase.
     class Meta:
-        db_table = u'Room'
+        db_table = u'room'
 
 class MeetingType(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=192, db_column='Name') # Field name made lowercase.
     class Meta:
-        db_table = u'MeetingType'
+        db_table = u'meetingtype'
 
     def __str__(self):
         return "%s (%d)"%(self.name, self.id)
@@ -151,7 +151,7 @@ class Meeting(models.Model):
     idroom = models.ForeignKey(Room, null=True, db_column='idRoom', blank=True) # Field name made lowercase.
     idmeetingtype = models.ForeignKey(MeetingType, db_column='idMeetingType') # Field name made lowercase.
     class Meta:
-        db_table = u'Meeting'
+        db_table = u'meeting'
 
 
 class SectionRelation(models.Model):
@@ -159,6 +159,6 @@ class SectionRelation(models.Model):
     idinstance = models.ForeignKey(Section, db_column='idSection', related_name='sectionrelation_instance') # Field name made lowercase.
     idparent = models.ForeignKey(Section, db_column='idParent', related_name='sectionrelation_parent') # Field name made lowercase.
     class Meta:
-        db_table = u'SectionRelation'
+        db_table = u'sectionrelation'
 
 
