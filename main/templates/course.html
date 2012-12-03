@@ -7,5 +7,62 @@
   </head>
   <body>
     <h1>{{course.iddepartment.abbreviation}} {{course.number}} {{course.name}}</h1>
+  <div style="width: 700px; margin: 0 auto;">
+        <h1>{{course.name}}</h1>
+        <h1>{{course.iddepartment.abbreviation}} {{course.number}}</h1>
+        <p>{{course.description}}</p>
+        <p>{{course.genedreqs}}</p>
+        <br>
+        <br>
+        <div class="row-fluid marketing">
+	        <div class="span6">
+	            <h3>Sections</h3>
+                <table>
+                <p>{{sections|length}}</p>
+                {% for section in sections %}
+                    <tr>
+                        <td>{{section.year}}</td>
+                        <td>{{section.quarter}}</td>
+                        <td>{{section.section}}</td>
+                        <td>{{section.classwebsite}}</td>
+                        <td>{{section.idrating.coursewhole}}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+                <br>
+                <br>
+                <h3>Professors</h3>
+                <!--{% for prof in course.professor %}-->
+                <!--<p>{{prof.name}}: -->
+                <!--    <a href={{prof.website}}>Faculty Profile</a> -->
+                <!--</p>-->
+                <!--{% endfor %}-->
+            </div>
+        </div>
+        
+        <div class="span3 offset2">
+	        <h3>Previously offered</h3>
+                <table>
+                <tr>
+                    <th></th>
+                    <!-- {% for past in course.prev_years %}-->
+                    <!-- <th>{{past.year}}}</th> -->
+                    <!-- {% endfor %}} -->
+                <!--</tr> -->
+                <!--{% for  -->
+                </table>
+            <h3>Ratings</h3>
+            <p>Course whole: {{ratings.coursewhole}}</p>
+            <p>Course content: {{ratings.coursecontent}}</p>
+            <br>
+            <p>Instructor effectiveness: {{ratings.instructoreffectiveness}}</p>
+            <p>Instructor contribution: {{ratings.instructorcontribution}}</p>
+            <p>Instructor interest: {{ratings.instructorinterest}}</p>
+            <br>
+            <p>Amount learned: {{ratings.amountlearned}}</p>
+            <p>Grading: {{ratings.grading}}</p>
+        </div>
+        
+    </div>
   </body>
 </html>
