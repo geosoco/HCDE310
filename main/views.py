@@ -29,10 +29,17 @@ def department(request, id):
 def course(request, id):
 	c = get_object_or_404(Course, pk=long(id))
 	inst = Section.objects.filter(idcourse=c)
-	return render(request, 'course.html', {"course" : c, "instances" : inst})
+	return render(request, 'course.html', {"course" : c, "sections" : inst})
 
 def course_readable(request, curriculum, num):
 	cur = get_object_or_404(Curriculum, abbreviation=curriculum)
 	c = get_object_or_404(Course, idcurriculum=cur, number=num)
 	inst = Section.objects.filter(idcourse=c)
-	return render(request, 'course.html', {"course" : c, "instances" : inst})	
+	return render(request, 'course.html', {"course" : c, "sections" : inst})	
+
+
+def section(request, curriculum, num, year, quarter, section):
+	cur = get_object_or_404(Curriculum, abbreviation=curriculum)
+	c = get_object_or_404(Course, idcurriculum=cur, number=num)
+	s = get_object_or_404(Section, idcourse=c, year=year, quarter=quarter, section=section)
+	return render(request, 'section.html', {"section" : s, "course" : c, "curriculum" : cur})
