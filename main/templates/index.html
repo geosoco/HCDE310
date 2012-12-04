@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>UW CourseWizard</title>
+        <title>UW Scheduler</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="icon" type="image/png" href="favicon.ico">
         <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/normalize.css">
@@ -12,24 +12,49 @@
     <body>
         <script src="http://code.jquery.com/jquery-latest.js"></script>
         <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+        
+           <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
         <div class="container">
-          <div class="jumbotron">
-            <br>
-            <br>
-            <br>
-            <br>
-            <h1>UW CourseWizard</h1>
-            <p class="lead">Search through the UW Course Catalog for classes, professors and more!</p>
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/scheduler">UW Scheduler</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="/scheduler/dept">Curriculums</a></li>
+              <li><a href="/scheduler/courses">Courses</a></li>
+              <li><a href="/scheduler/Instructors">Instructors</a></li>
+            </ul>
+          </div>
+          <div class="navbar-form pull-right">
+              <ul class="nav">
+                <li><a href="/scheduler/About">About</a></li>
+              </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+        
+        
+        
+        <div class="container">
+          <div class="hero-unit">
+            <h1>UW Scheduler</h1>
+            <p>Search through the UW Course Catalog for classes, professors, ratings and more!</p>
             <form class="form-search">
               <div class="input-append">
                 <input type="text" class="input-xxlarge search-query">
-                <button type="submit" class="btn">Search</button>
+                <button type="submit" class="btn"><i class="icon-search"></i>Search</button>
               </div>
             </form>
             <div class="accordion" id="accordion2">
               <div class="accordion-group">
                 <div class="accordion-heading">
                   <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+                    <i class="icon-search"></i>
                     Advanced Options
                   </a>
                 </div>
@@ -43,6 +68,14 @@
                       <option>8:30AM</option>
                       <option>9:30AM</option>
                       <option>10:30AM</option>
+                      <option>11:30AM</option>
+                      <option>12:30PM</option>
+                      <option>1:30PM</option>
+                      <option>2:30PM</option>
+                      <option>3:30PM</option>
+                      <option>4:30PM</option>
+                      <option>5:30PM</option>
+                      <option>6:30PM</option>
                     </select>
                     to
                     <select>
@@ -51,26 +84,43 @@
                       <option>8:30AM</option>
                       <option>9:30AM</option>
                       <option>10:30AM</option>
+                      <option>11:30AM</option>
+                      <option>12:30PM</option>
+                      <option>1:30PM</option>
+                      <option>2:30PM</option>
+                      <option>3:30PM</option>
+                      <option>4:30PM</option>
+                      <option>5:30PM</option>
+                      <option>6:30PM</option>
                     </select>
                     <br>
                     Credit Type:
                     <br>
-                    <select>
-                      <option>ANY</option>
-                      <option>NW</option>
-                      <option>VLPA</option>
-                      <option>I&amp;S</option>
-                      <option>W</option>
-                      <option>C</option>
-                      <option>QSR</option>
-                    </select>
+                    <label class="checkbox inline">
+                        <input type="checkbox" id="inlineCheckbox1" value="NW" checked="checked"> NW
+                    </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" id="inlineCheckbox2" value="VLPA" checked="checked"> VLPA
+                    </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" id="inlineCheckbox3" value="IS" checked="checked"> I&amp;S
+                    </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" id="inlineCheckbox1" value="W" checked="checked"> W
+                    </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" id="inlineCheckbox2" value="C" checked="checked"> C
+                    </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" id="inlineCheckbox3" value="QSR" checked="checked"> QSR
+                    </label>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <a class="btn btn-large btn-primary" href="#">Browse Classes</a>
-            <a class="btn btn-large btn-primary" href="#">Browse Professors</a>
+            <a class="btn btn-large btn-primary" href="#">Browse Curriculums</a>
+            <a class="btn btn-large btn-primary" href="#">Browse Courses</a>
+            <a class="btn btn-large btn-primary" href="#">Browse Instructors</a>
             <br>
             <br>
             

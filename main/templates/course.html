@@ -3,30 +3,58 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{STATIC_URL}}css/normalize.css" type="text/css" media="screen"/>
-    <title>{{course.iddepartment.abbreviation}} {{course.number}} {{course.name}}</title>
+    <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.css" type="text/css" media="screen"/>
+    <title>{{course.idcurriculum.abbreviation}} {{course.number}} {{course.name}}</title>
   </head>
   <body>
-    <h1>{{course.iddepartment.abbreviation}} {{course.number}} {{course.name}}</h1>
+    <h1>{{course.idcurriculum.abbreviation}} {{course.number}}</h1>
+    <h1>{{course.name}}</h1>
   <div style="width: 700px; margin: 0 auto;">
-        <h1>{{course.name}}</h1>
-        <h1>{{course.iddepartment.abbreviation}} {{course.number}}</h1>
+        <br>
         <p>{{course.description}}</p>
-        <p>{{course.genedreqs}}</p>
+        {% if course.genedreqs == 1 %}
+            <p>NW</p>
+        {% elif course.genedreqs == 2 %}
+            <p>VLPA</p>
+        {% elif course.genedreqs == 4 %}
+            <p>I&amp;S</p>
+        {% elif course.genedreqs == 8 %}
+            <p>W</p>
+        {% elif course.genedreqs == 16 %}
+            <p>EC</p>
+        {% elif course.genedreqs == 32 %}
+            <p>QSR</p>
+        {% endif %}
         <br>
         <br>
         <div class="row-fluid marketing">
 	        <div class="span6">
 	            <h3>Sections</h3>
-                <table>
-                <p>{{sections|length}}</p>
+                <table class="table table-hover">
+                    <th>Section</th>
+                    <th>SLN</th>
+                    <th>Instructor</th>
+                    <th>Number Enrolled</th>
+                    <th>Max Enrollment</th>
+                    <th>Class Website</th>
+                    <th>Status</th>
                 {% for section in sections %}
+                    {% if section.maxenrollment != null %}
                     <tr>
-                        <td>{{section.year}}</td>
-                        <td>{{section.quarter}}</td>
                         <td>{{section.section}}</td>
+                        <td>{{section.sln}}</td>
+                        <td>{{section.idinstructor}}</td>
+                        <td>{{section.numenrolled}}</td>
+                        <td>{{section.maxenrollment}}</td>
                         <td>{{section.classwebsite}}</td>
-                        <td>{{section.idrating.coursewhole}}</td>
+                        {% if section.numenrolled < section.maxenrollment %}
+                        <td><span class="label label-success">Open</span><td>
+                        {% else %}
+                        <td><span class="label label-important">Closed</span><td>
+                        {% endif %}
+                        
                     </tr>
+                    {% endif %}
                 {% endfor %}
                 </table>
                 <br>
@@ -41,26 +69,30 @@
         </div>
         
         <div class="span3 offset2">
-	        <h3>Previously offered</h3>
-                <table>
-                <tr>
-                    <th></th>
-                    <!-- {% for past in course.prev_years %}-->
-                    <!-- <th>{{past.year}}}</th> -->
-                    <!-- {% endfor %}} -->
-                <!--</tr> -->
-                <!--{% for  -->
-                </table>
-            <h3>Ratings</h3>
-            <p>Course whole: {{ratings.coursewhole}}</p>
-            <p>Course content: {{ratings.coursecontent}}</p>
-            <br>
-            <p>Instructor effectiveness: {{ratings.instructoreffectiveness}}</p>
-            <p>Instructor contribution: {{ratings.instructorcontribution}}</p>
-            <p>Instructor interest: {{ratings.instructorinterest}}</p>
-            <br>
-            <p>Amount learned: {{ratings.amountlearned}}</p>
-            <p>Grading: {{ratings.grading}}</p>
+	        <h3>Instructor Ratings</h3>
+            <table class="table table-hover">
+                <th>Instructor</th>
+                <th>Year</th>
+                <th>Quarter</th>
+                <th>Instructor Contribution</th>
+                <th>Instructor Interest</th>
+                <th>Instructor Effectiveness</th>
+                <th>Amount Learned</th>
+                <th>Grading</th>
+                {% for section in sections %}
+                    {% if section.idrating != null %}
+                    <tr>
+                        <td>{{section.idinstructor}}</td>
+                        <td>{{section.year}}</td>
+                        <td>{{section.quarter}}</td>
+                        <td>{{section.idrating.instructorcontribution}}</td>
+                        <td>{{section.idrating.instructorinterest}}</td>
+                        <td>{{section.idrating.instructoreffectiveness}}</td>
+                        <td>{{section.idrating.amountlearned}}</td>
+                        <td>{{section.idrating.grading}}</td>
+                    </tr>                
+                    {% endif %}
+                {% endfor %}
         </div>
         
     </div>
