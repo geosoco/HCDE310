@@ -7,9 +7,11 @@
     <title>{{course.idcurriculum.abbreviation}} {{course.number}} {{course.name}}</title>
   </head>
   <body>
+  <div class="container">
+  <div class="hero-unit">
     <h1>{{course.idcurriculum.abbreviation}} {{course.number}}</h1>
     <h1>{{course.name}}</h1>
-  <div style="width: 700px; margin: 0 auto;">
+    <div style="width: 700px; margin: 0 auto;">
         <br>
         <p>{{course.description}}</p>
         {% if course.genedreqs == 1 %}
@@ -95,6 +97,8 @@
                 {% endfor %}
         </div>
         
+    </div>
+    </div>
     </div>
   </body>
 </html>
