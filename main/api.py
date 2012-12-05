@@ -30,6 +30,11 @@ class InstructorResource(ModelResource):
 		resource_name = 'instructor'
 
 
+class RatingResource(ModelResource):
+	class Meta:
+		queryset = Rating.objects.all()
+		resource_name = 'rating'
+
 class BuildingResource(ModelResource):
 	class Meta:
 		queryset = Building.objects.all()
@@ -62,6 +67,7 @@ class MeetingResource(ModelResource):
 class SectionResource(ModelResource):
 	meetings = fields.ToManyField(MeetingResource, 'meeting_set', full=True)
 	instructor = fields.ToOneField(InstructorResource, 'idinstructor', full=True, null=True)
+	ratings = fields.ToOneField(RatingResource, 'idrating', full=True, null=True)
 	#course = fields.ToOneField(CourseResource, 'idCourse', full=True)
 
 	class Meta:
