@@ -1,9 +1,19 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from tastypie.api import Api
+from main.api import *
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
+
+
+v1_api = Api(api_name='v1')
+v1_api.register(CurriculumResource())
+v1_api.register(CourseResource())
+v1_api.register(InstructorResource())
+v1_api.register(SectionResource())
+
 
 urlpatterns = patterns('',
     url(r'^$', 'main.views.index'),
@@ -15,7 +25,7 @@ urlpatterns = patterns('',
     url(r'^section/(?P<curriculum>[\w\s]+)/(?P<num>\d{3})/(?P<year>\d{2})/(?P<quarter>\w{2})/(?P<section>\w*)$', 'main.views.section'),
     # Examples:
     # url(r'^$', 'HCDE310.views.home', name='home'),
-    # url(r'^HCDE310/', include('HCDE310.foo.urls')),
+    (r'^api/', include(v1_api.urls)),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
