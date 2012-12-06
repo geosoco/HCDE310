@@ -1,0 +1,102 @@
+<div class="container">
+        <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">Filters</li>
+              <label>Keyword:</label>
+              <input type="text">
+              <label>Credit type:</label>
+              <label class="checkbox">
+                <input type="checkbox" id="NWCheckbox" value="NW" checked="checked"> NW
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="VLPACheckbox" value="VLPA" checked="checked"> VLPA
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="ISCheckbox" value="IS" checked="checked"> I&amp;S
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="WCheckbox" value="W" checked="checked"> W
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="CCheckbox" value="C" checked="checked"> C
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="QSRCheckbox" value="QSR" checked="checked"> QSR
+              </label>
+              <label>Status:</label>
+              <label class="checkbox">
+                <input type="checkbox" id="OpenCheckbox" value="NW" checked="checked"> Open
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="ClosedCheckbox" value="VLPA" checked="checked"> Closed
+              </label>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span9">
+          <div class="hero-unit">
+            <h3>Results for:</h3>
+            <!-- table for results -->
+            <table class="table table-hover">
+                <th>Course</th>
+                <th>Title</th>
+                <th>Credit Type</th>
+                <th>Credits</th>
+                <!-- some type of for loop to display data 
+                {% for result in list %}
+                <tr>
+                    <td>{{course.idcurriculum.abbreviation}} {{course.number}</td>
+                    <td>{{course.name}}</td>
+                    <td>
+                        % if course.genedreqs == 1 %}
+                            <p>NW</p>
+                        {% elif course.genedreqs == 2 %}
+                            <p>VLPA</p>
+                        {% elif course.genedreqs == 4 %}
+                            <p>I&amp;S</p>
+                        {% elif course.genedreqs == 8 %}
+                            <p>W</p>
+                        {% elif course.genedreqs == 16 %}
+                            <p>EC</p>
+                        {% elif course.genedreqs == 32 %}
+                            <p>QSR</p>
+                        {% endif %}
+                    </td>
+                    <td>{{course.maxcredits}}</td>
+                </tr>
+                -->
+            </table>
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <p>&copy; Company 2012</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+</div>
+
+
