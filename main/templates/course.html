@@ -1,20 +1,19 @@
-
     <h1>{{course.idcurriculum.abbreviation}} {{course.number}}</h1>
     <h1>{{course.name}}</h1>
     <div style="width: 700px; margin: 0 auto;">
         <br>
         <p>{{course.description}}</p>
-        {% if course.genedreqs == 1 %}
+        {% if course.genedreqs & 1 == 1 %}
             <p>NW</p>
-        {% elif course.genedreqs == 2 %}
+        {% elif course.genedreqs & 2 == 2 %}
             <p>VLPA</p>
-        {% elif course.genedreqs == 4 %}
+        {% elif course.genedreqs & 4 == 4 %}
             <p>I&amp;S</p>
-        {% elif course.genedreqs == 8 %}
+        {% elif course.genedreqs & 8 == 8 %}
             <p>W</p>
-        {% elif course.genedreqs == 16 %}
+        {% elif course.genedreqs & 16 == 16 %}
             <p>EC</p>
-        {% elif course.genedreqs == 32 %}
+        {% elif course.genedreqs & 32 == 32 %}
             <p>QSR</p>
         {% endif %}
         <br>
