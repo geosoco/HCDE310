@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{STATIC_URL}}css/normalize.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{{STATIC_URL}}css/default.css" type="text/css" media="screen"/>
+
     <title>{{course.idcurriculum.abbreviation}} {{course.number}} {{course.name}}</title>
   </head>
   <body>
@@ -14,17 +16,17 @@
     <div style="width: 700px; margin: 0 auto;">
         <br>
         <p>{{course.description}}</p>
-        {% if course.genedreqs == 1 %}
+        {% if course.genedreqs & 1 == 1 %}
             <p>NW</p>
-        {% elif course.genedreqs == 2 %}
+        {% elif course.genedreqs & 2 == 2 %}
             <p>VLPA</p>
-        {% elif course.genedreqs == 4 %}
+        {% elif course.genedreqs & 4 == 4 %}
             <p>I&amp;S</p>
-        {% elif course.genedreqs == 8 %}
+        {% elif course.genedreqs & 8 == 8 %}
             <p>W</p>
-        {% elif course.genedreqs == 16 %}
+        {% elif course.genedreqs & 16 == 16 %}
             <p>EC</p>
-        {% elif course.genedreqs == 32 %}
+        {% elif course.genedreqs & 32 == 32 %}
             <p>QSR</p>
         {% endif %}
         <br>
