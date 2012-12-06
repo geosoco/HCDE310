@@ -30,6 +30,7 @@ window.SearchView = Backbone.View.extend({
 
     events: {
     	"click #searchbtn" : "doSearch",
+    	"submit form" : "doSearch",
     	"keypress #query" : "doLookahead",
     },
     render: function() {
@@ -43,6 +44,7 @@ window.SearchView = Backbone.View.extend({
     	console.log('doSearch');
     	var str = $('#query').val();
     	app.navigate('search/' + str, {trigger: true} );
+    	return false;
     },
     doLookahead: function( event ) {
     	console.log('doLookahead');
@@ -61,9 +63,9 @@ window.ResultsView = Backbone.View.extend({
 	},
 
 	render: function() {
-    	var html = Mustache.render($("#tmpl_result").html(), {} );
+    	var html = Mustache.render($("#tmpl_results").html(), {} );
 		this.$el.html( html );
-
+		console.log('results done')
 	}
 
 });
@@ -101,19 +103,6 @@ window.SearchApp = Backbone.Router.extend({
 		page = page || 0;
 
 
-		var columns = [
-		    {
-		        name: "Course",
-		        field: "course"
-		        id: "course",  // In most cases field and id will have the same value.
-		        sortable: true
-		    },
-		    {
-		    	name: "name",
-		    	field: "name",
-		    	id: "name"
-		    }
-		];
 
 
 		$.ajax('/scheduler/api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&description__icontains=' + query + '', {
@@ -121,11 +110,28 @@ window.SearchApp = Backbone.Router.extend({
 				console.log('ajax success!');
 				console.dir(data);
 				spinner.spin(false);
+
+				var columns = [
+				    { name: "Course", field: "course", id: "course", sortable: true, width: 100 },
+				    { name: "Name", field: "name", id: "name", width: 300 }
+				];
+
+				var rows = data.objects.map(function(d,i){
+					return {
+						"course": d.curriculum.abbreviation + " " + d.number,
+						"name": d.name
+					}
+				});
+
+				console.log("rows");
+				console.dir(rows);
 				
 				//$('#main').html(JSON.stringify(data));
 				slickgrid = new Slick.Grid("#slickgrid",
-					data.objects,
-					)
+					rows,
+					columns,
+					{}
+					);
 
 			}
 
