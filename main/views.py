@@ -12,7 +12,7 @@ def index(request):
 
 
 def test(request):
-	return render(request, 'test.html', {'title': 'Super Fantastic', 'topic': 'Fun!'})
+	return render(request, 'template.html', {'title': 'Super Fantastic', 'topic': 'Fun!', "inner_page": 'index.html'})
 
 
 def instructor(request, id=1):

@@ -12,6 +12,7 @@ class CurriculumResource(ModelResource):
 
 class CourseResource(ModelResource):
 	sections = fields.ToManyField("main.api.SectionResource", 'section_set', full=True)
+	curriculum = fields.ToOneField(CurriculumResource, 'idcurriculum', full=True)
 
 	class Meta:
 		queryset = Course.objects.all()

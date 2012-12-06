@@ -2,3 +2,5 @@
 html, body { width: 100%; height: 100% }
 body { background-color: #f0fff0; padding-top: 60px;}
 .navbar-inner { background-color: #382465;} 
+
+#accordion2, #searchform { width: 600px; }
