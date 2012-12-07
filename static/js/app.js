@@ -105,7 +105,7 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
-		$.ajax('/scheduler/api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&description__icontains=' + query + '', {
+		$.ajax( BASE_URL + '/api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&description__icontains=' + query + '', {
 			success: function(data) {
 				console.log('ajax success!');
 				console.dir(data);
