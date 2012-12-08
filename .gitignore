@@ -26,3 +26,5 @@ deployed_static/*
 #
 .DS_STORE
 
+# bootstrap
+bootstrap/*
