@@ -33,3 +33,7 @@ body { background-color: #fff; padding-top: 50px; }
 	width: 80px;
 	height: 1.5em;
 }
+
+#mainlogo { overflow: auto; margin-bottom: 30px; }
+.w-wrap { background-color: #39275b; padding: 60px; }
+#sched_subtitle { background-color: #E3BF42; bottom: 0px; margin-top: -100px; margin-left: -20px; }
