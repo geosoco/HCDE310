@@ -2,6 +2,7 @@
 html, body { width: 100%; font-size: 12px; }
 body { background-color: #fff; padding-top: 50px; }
 .navbar-inverse .navbar-inner{ background-color: #382465;} 
+.center {margin-left: auto; margin-right: auto;}
 
 #accordion2, #searchform { width: 600px; }
 
