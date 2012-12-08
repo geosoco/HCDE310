@@ -4,12 +4,20 @@ from django.http import HttpResponse
 from django.shortcuts import *
 from main.models import Curriculum, Course, Section, Rating, Instructor
 import simplejson as json
+#from main.filters import *
 
 
 def index(request):
     return render(request, 'template.html', {"inner_page": 'index.html'})
 
-
+def about(request):
+	hcde = Curriculum.objects.get(abbreviation='HCDE')
+	psych = Curriculum.objects.get(abbreviation='PSYCH')
+	cecilia = Instructor.objects.get(name__iexact='Cecilia Aragon')
+	sean = Instructor.objects.get(name__iexact='Munson,Sean A')
+	susan = Instructor.objects.get(name__iexact='Susan Joslyn')
+	hcde310 = Course.objects.get(number='310', idcurriculum__abbreviation__iexact='HCDE')
+	return render(request, 'template.html', {"inner_page": 'about.html', 'HCDE': hcde, 'PSYCH': psych, 'Sean': sean, 'Susan': susan, 'Cecilia': cecilia, 'HCDE310': hcde310})
 
 def test(request):
 	return render(request, 'template.html', {'title': 'Super Fantastic', 'topic': 'Fun!', "inner_page": 'index.html'})
@@ -44,3 +52,5 @@ def section(request, curriculum, num, year, quarter, section):
 	c = get_object_or_404(Course, idcurriculum=cur, number=num)
 	s = get_object_or_404(Section, idcourse=c, year=year, quarter=quarter, section=section)
 	return render(request, 'template.html', {"course" : c, "section" : s, "curriculum" : cur, "inner_page": 'course.html'})
+
+

@@ -17,6 +17,7 @@ v1_api.register(SectionResource())
 
 urlpatterns = patterns('',
     url(r'^$', 'main.views.index'),
+    url(r'^about/$', 'main.views.about'),
     url(r'^test/$', 'main.views.test'),
     url(r'^instructor/(?P<id>\d+)$', 'main.views.instructor'),
     url(r'^dept/(?P<id>\d+)$', 'main.views.department'),
