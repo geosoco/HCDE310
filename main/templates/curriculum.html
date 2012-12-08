@@ -1,0 +1,14 @@
+  <p>{map(chr, range(65, 91))}</P>
+    <h1>{{department.name|default:"Unknown"}}</h1>
+     <table class="table table-hover">
+        <th>Number</th>
+        <th>Name</th>
+        <th>Max Credits</th>
+        {% for course in courses %}
+        <tr>
+            <td>{{course.number}}</td>
+            <td>{{course.name}}</td>
+            <td>{{course.maxcredits}}</td>
+        </tr>
+        {% endfor %}
+     </table>

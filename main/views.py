@@ -52,5 +52,7 @@ def section(request, curriculum, num, year, quarter, section):
 	c = get_object_or_404(Course, idcurriculum=cur, number=num)
 	s = get_object_or_404(Section, idcourse=c, year=year, quarter=quarter, section=section)
 	return render(request, 'template.html', {"course" : c, "section" : s, "curriculum" : cur, "inner_page": 'course.html'})
-
+    
+def curriculum(request, id):
+	return render(request, 'template.html', {"inner_page": 'curriculum.html'})
 
