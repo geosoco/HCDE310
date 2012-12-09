@@ -60,6 +60,13 @@ def section(request, curriculum, num, year, quarter, section):
 	s = get_object_or_404(Section, idcourse=c, year=year, quarter=quarter, section=section)
 	return render(request, 'template.html', {"course" : c, "section" : s, "curriculum" : cur, "inner_page": 'course.html'})
     
-def curriculum(request, id):
-	return render(request, 'template.html', {"inner_page": 'curriculum.html'})
+def curriculum(request, letter=None):
+    if letter is None: 
+        letters = map(chr, range(65, 91))
+        return render(request, 'template.html', { 'inner_page': 'curriculumazlist.html', 'letters': letters})
+    else:
+        #curriculums = get_object_or_404(Curriculum, abbreviation__startswith=letter)
+        #curriculums = Curriculum.object.filter(abrreviation__startswith=letter)
+        curriculums = []
+        return render(request, 'template.html', {'inner_page': 'curriculumlist.html', 'curriculums': curriculums})
 
