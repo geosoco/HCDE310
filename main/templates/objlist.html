@@ -1,0 +1,40 @@
+<br>
+<h1>{{objtype}}s</h1>
+<hr>
+<ul class="inline" id="buttoncenter">
+{% for letter in letters %}
+<a href="{{BASE_URL}}" class="btn">{{letter}}</a>
+{% endfor %}
+</ul>
+<hr>
+<div class="container">
+{% if objtype == "department" %}
+<table class="table table-hover">
+    <th>Name<th>
+    {% for curriculum in objects %}
+    <tr>
+        <td>{{curriculum.name}} ({{curriculum.abbreviation}})</td>
+    </tr>
+    {% endfor %}
+</table>
+{% elif objtype == "course" %}
+<table class="table table-hover">
+    <th>Name<th>
+    {% for course in objects %}
+    <tr>
+        <td>{{course.name}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% elif objtype == "instructor" %}
+<table class="table table-hover">
+    <th>Name<th>
+    {% for instructor in objects %}
+    <tr>
+        <td>{{instructor.name}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endif %}
+</div>

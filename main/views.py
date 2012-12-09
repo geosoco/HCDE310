@@ -61,12 +61,27 @@ def section(request, curriculum, num, year, quarter, section):
 	return render(request, 'template.html', {"course" : c, "section" : s, "curriculum" : cur, "inner_page": 'course.html'})
     
 def curriculum(request, letter=None):
+    letters = map(chr, range(65, 91))
     if letter is None: 
-        letters = map(chr, range(65, 91))
-        return render(request, 'template.html', { 'inner_page': 'curriculumazlist.html', 'letters': letters})
+        return render(request, 'template.html', {'inner_page': 'azlist.html', 'objtype' : 'department', 'letters': letters})
     else:
-        #curriculums = get_object_or_404(Curriculum, abbreviation__startswith=letter)
-        #curriculums = Curriculum.object.filter(abrreviation__startswith=letter)
-        curriculums = []
-        return render(request, 'template.html', {'inner_page': 'curriculumlist.html', 'curriculums': curriculums})
+        curriculums = Curriculum.objects.filter(abbreviation__startswith=letter)
+        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype' : 'department', 'objects': curriculums, 'letters': letters})
+
+def courselist(request, letter=None):
+    letters = map(chr, range(65, 91))
+    if letter is None: 
+        return render(request, 'template.html', { 'inner_page': 'azlist.html', 'objtype': 'course', 'letters': letters})
+    else:
+        courses = Course.objects.filter(name__startswith=letter)
+        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'course', 'objects': courses, 'letters': letters})
+
+
+def instructorlist(request, letter=None):
+    letters = map(chr, range(65, 91))
+    if letter is None: 
+        return render(request, 'template.html', { 'inner_page': 'azlist.html', 'objtype': 'instructor', 'letters': letters})
+    else:
+        instructors = Instructor.objects.filter(name__startswith=letter)
+        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'instructor', 'objects': instructors, 'letters': letters})
 
