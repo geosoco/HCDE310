@@ -63,25 +63,25 @@ def section(request, curriculum, num, year, quarter, section):
 def curriculum(request, letter=None):
     letters = map(chr, range(65, 91))
     if letter is None: 
-        return render(request, 'template.html', {'inner_page': 'azlist.html', 'objtype' : 'department', 'letters': letters})
+        return render(request, 'template.html', {'inner_page': 'azlist.html', 'objtype' : 'department', 'letters': letters, 'pageurl':'curriculum/'})
     else:
-        curriculums = Curriculum.objects.filter(abbreviation__startswith=letter)
-        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype' : 'department', 'objects': curriculums, 'letters': letters})
+        curlist = Curriculum.objects.filter(abbreviation__startswith=letter)
+        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype' : 'department', 'objects': curlist, 'letters': letters, 'pageurl':'curriculum/'})
 
 def courselist(request, letter=None):
     letters = map(chr, range(65, 91))
     if letter is None: 
-        return render(request, 'template.html', { 'inner_page': 'azlist.html', 'objtype': 'course', 'letters': letters})
+        return render(request, 'template.html', { 'inner_page': 'azlist.html', 'objtype': 'course', 'letters': letters, 'pageurl':'courselist/'})
     else:
         courses = Course.objects.filter(name__startswith=letter)
-        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'course', 'objects': courses, 'letters': letters})
+        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'course', 'objects': courses, 'letters': letters, 'pageurl':'courselist/'})
 
 
 def instructorlist(request, letter=None):
     letters = map(chr, range(65, 91))
     if letter is None: 
-        return render(request, 'template.html', { 'inner_page': 'azlist.html', 'objtype': 'instructor', 'letters': letters})
+        return render(request, 'template.html', { 'inner_page': 'azlist.html', 'objtype': 'instructor', 'letters': letters, 'pageurl':'instructorlist/'})
     else:
         instructors = Instructor.objects.filter(name__startswith=letter)
-        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'instructor', 'objects': instructors, 'letters': letters})
+        return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'instructor', 'objects': instructors, 'letters': letters, 'pageurl':'instructorlist/'})
 
