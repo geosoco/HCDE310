@@ -3,6 +3,7 @@
 from tastypie import fields, utils
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from main.models import *
+from django.db.models import Q
 
 
 class CurriculumResource(ModelResource):
@@ -22,8 +23,44 @@ class CourseResource(ModelResource):
 			'genedreqs': ALL,
 			'description': ALL,
 			'comment': ALL,
-
+			'query': ['icontains',],
+			'days': ['eq',],
+			'ger': ['eq',],
 		}
+
+	def build_filters(self, filters=None):
+	    if filters is None:
+	        filters = {}
+	    orm_filters = super(CourseResource, self).build_filters(filters)
+
+	    if('query' in filters):
+	        query = filters['query']
+	        qset = (
+	                Q(name__icontains=query) |
+	                Q(description__icontains=query) |
+	                Q(idcurriculum__abbreviation__icontains=query)
+	                )
+	        orm_filters.update({'custom': qset})
+
+	    if('ger' in filters):
+	    	query = filters['ger']
+	    	qset = (
+	    		)
+
+	    	orm_filters.extend({'custom': qset})
+
+	    return orm_filters
+
+	def apply_filters(self, request, applicable_filters):
+	    if 'custom' in applicable_filters:
+	        custom = applicable_filters.pop('custom')
+	    else:
+	        custom = None
+
+	    semi_filtered = super(CourseResource, self).apply_filters(request, applicable_filters)
+
+	    return semi_filtered.filter(custom) if custom else semi_filtered
+
 
 class InstructorResource(ModelResource):
 	class Meta:

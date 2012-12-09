@@ -17,7 +17,14 @@ def about(request):
 	sean = Instructor.objects.get(name__iexact='Munson,Sean A')
 	susan = Instructor.objects.get(name__iexact='Susan Joslyn')
 	hcde310 = Course.objects.get(number='310', idcurriculum__abbreviation__iexact='HCDE')
-	return render(request, 'template.html', {"inner_page": 'about.html', 'HCDE': hcde, 'PSYCH': psych, 'Sean': sean, 'Susan': susan, 'Cecilia': cecilia, 'HCDE310': hcde310})
+	return render(request, 'template.html', {
+		"inner_page": 'about.html', 
+		'HCDE': hcde, 
+		'PSYCH': psych, 
+		'Sean': sean, 
+		'Susan': susan, 
+		'Cecilia': cecilia, 
+		'HCDE310': hcde310})
 
 def test(request):
 	return render(request, 'template.html', {'title': 'Super Fantastic', 'topic': 'Fun!', "inner_page": 'index.html'})

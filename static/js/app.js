@@ -63,6 +63,7 @@ window.ResultsView = Backbone.View.extend({
 	},
 
 	render: function() {
+
     	var html = Mustache.render($("#tmpl_results").html(), {} );
 		this.$el.html( html );
 		console.log('results done')
@@ -105,7 +106,7 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
-		$.ajax( BASE_URL + '/api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&description__icontains=' + query + '', {
+		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&query=' + query + '', {
 			success: function(data) {
 				console.log('ajax success!');
 				console.dir(data);
