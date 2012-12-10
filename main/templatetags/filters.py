@@ -18,3 +18,8 @@ def curriculum(value, text = None):
 def course(value, text = None):
 	if value is not None:
 		return '<i class="icon-book"></i><a href="%scourse/%d">%s</a>'%(BASE_URL, value.id, (text if text is not None else (value.idcurriculum.abbreviation + ' ' + str(value.number)) ))
+
+@register.simple_tag        
+def section(value, text = None):
+    if value is not None:
+		return '<i class="icon-book"></i><a href="%scourse/%d">%s</a>'%(BASE_URL, value.idcourse.id, (text if text is not None else (value.idcourse.idcurriculum.abbreviation + ' ' + str(value.idcourse.number)) ))

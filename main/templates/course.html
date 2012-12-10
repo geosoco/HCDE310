@@ -1,22 +1,31 @@
+{% load filters %}
   <div class="container">
+    <br>
     <h1>{{course.idcurriculum.abbreviation}} {{course.number}}</h1>
-    <h1>{{course.name}}</h1>
+    <h2 align="CENTER">{{course.name}}</h2>
     <div style="width: 700px; margin: 0 auto;">
         <br>
-        <p>{{course.description}}</p>
-        {% if course.genedreqs == 1 %}
-            <p>NW</p>
-        {% elif course.genedreqs == 2 %}
-            <p>VLPA</p>
-        {% elif course.genedreqs == 4 %}
-            <p>I&amp;S</p>
-        {% elif course.genedreqs == 8 %}
-            <p>W</p>
-        {% elif course.genedreqs == 16 %}
-            <p>EC</p>
-        {% elif course.genedreqs == 32 %}
-            <p>QSR</p>
-        {% endif %}
+        <div class="well">
+            <p>{{course.description}}</p>
+            {% if course.genedreqs != None %}
+                <div style="display: inline"
+                <p>Credit type:</p>
+                {% if course.genedreqs == 1 %}
+                    <span class="label label-info">NW</span>
+                {% elif course.genedreqs == 2 %}
+                    <span class="label label-info">VLPA</span>
+                {% elif course.genedreqs == 4 %}
+                    <span class="label label-info">I&amp;S</span>
+                {% elif course.genedreqs == 8 %}
+                    <span class="label label-info">W</span>
+                {% elif course.genedreqs == 16 %}
+                    <span class="label label-info">EC</span>
+                {% elif course.genedreqs == 32 %}
+                    <span class="label label-info">QSR</span>
+                {% endif %}
+                </div>
+            {% endif %}
+        </div>
         <br>
         <br>
         <div class="row-fluid marketing">
@@ -35,7 +44,7 @@
                     <tr>
                         <td>{{section.section}}</td>
                         <td>{{section.sln}}</td>
-                        <td>{{section.idinstructor}}</td>
+                        <td>{% instructor section.idinstructor %}</td>
                         <td>{{section.numenrolled}}</td>
                         <td>{{section.maxenrollment}}</td>
                         <td>{{section.classwebsite}}</td>
@@ -53,7 +62,6 @@
                 <br>
             </div>
             </div>
-            <div class="span6">
 	        <h3>Instructor Ratings</h3>
             <table class="table table-hover">
                 <th>Instructor</th>
@@ -67,7 +75,7 @@
                 {% for section in sections %}
                     {% if section.idrating != null %}
                     <tr>
-                        <td>{{section.idinstructor}}</td>
+                        <td>{% instructor section.idinstructor %}</td>
                         <td>{{section.year}}</td>
                         <td>{{section.quarter}}</td>
                         <td>{{section.idrating.instructorcontribution}}</td>
@@ -78,7 +86,6 @@
                     </tr>                
                     {% endif %}
                 {% endfor %}
-            </div>
         </div>   
     </div>
 </div>

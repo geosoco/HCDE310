@@ -1,9 +1,10 @@
+
 <br>
 <h1>{{objtype}}s</h1>
 <hr>
 <ul class="inline" id="buttoncenter">
 {% for letter in letters %}
-<a href="{{BASE_URL}}" class="btn">{{letter}}</a>
+<a href="{{BASE_URL}}{{pageurl}}{{letter}}" class="btn">{{letter}}</a>
 {% endfor %}
 </ul>
 <hr>

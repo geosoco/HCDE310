@@ -1,40 +1,50 @@
 {% load filters %}
+<<<<<<< HEAD
+=======
+<br>
+>>>>>>> 354f8037108a25275675ef7db86be52ffad445ea
 <h1>{{objtype}}s</h1>
 <hr>
 <ul class="inline" id="buttoncenter">
 {% for letter in letters %}
-<a href="{{BASE_URL}}" class="btn">{{letter}}</a>
+<a href="{{BASE_URL}}{{pageurl}}{{letter}}" class="btn">{{letter}}</a>
 {% endfor %}
 </ul>
 <hr>
 <div class="container">
 {% if objtype == "department" %}
+<<<<<<< HEAD
 <table class="table table-hover">
     <th>Name<th>
     {% for o in objects %}
     <tr>
         <td>{% curriculum o %}</td>
     </tr>
+=======
+<ul>
+    {% for curriculum in objects %}
+    <li>{% curriculum curriculum curriculum.name%} ({{curriculum.abbreviation}})</li>
+>>>>>>> 354f8037108a25275675ef7db86be52ffad445ea
     {% endfor %}
-</table>
+</ul>
 {% elif objtype == "course" %}
-<table class="table table-hover">
-    <th>Name<th>
+<ul>
     {% for course in objects %}
+<<<<<<< HEAD
     <tr>
         <td>{% course course course.name%}</td>
     </tr>
+=======
+    <li>{% course course course.name%} ({{course.idcurriculum.abbreviation}} {{course.number}})</li>
+>>>>>>> 354f8037108a25275675ef7db86be52ffad445ea
     {% endfor %}
-</table>
+</ul>
 {% elif objtype == "instructor" %}
-<table class="table table-hover">
-    <th>Name<th>
+<ul>
     {% for instructor in objects %}
-    <tr>
-        <td>{{instructor.name}}</td>
-    </tr>
+    <li>{% instructor instructor instructor.name %}</li>
     {% endfor %}
-</table>
+</ul>
 
 {% endif %}
 </div>
