@@ -8,7 +8,7 @@
     <hr>
     <ul>
         {% for obj in courseinstances %}
-            <li>{% course obj obj.idcourse.name %} ({{obj.idcourse.idcurriculum.abbreviation}} {{obj.idcourse.number}})</li>
+            <li>{% section obj%} ({{obj.idcourse.idcurriculum.abbreviation}} {{obj.idcourse.number}})</li>
             {% if obj.idrating.instructorcontribution != None %}
             <dl class="dl-horizontal">
                 <dt>Instructor Contribution</dt>
