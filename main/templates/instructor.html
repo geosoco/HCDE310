@@ -1,9 +1,28 @@
+{% load filters %}
 <div class="container">
-<h1>{{ instructor.name|default:"Unknown" }}</h1>
-<h3>Courses Taught</h3>
-<ul>
-    {% for obj in courseinstances %}
-        <li>{{obj.idcourse.iddepartment.abbreviation}} {{obj.idcourse.number}} {{obj.idcourse.name}}
-    {% endfor %}
-</ul>
+    <br>
+    <h1>{{ instructor.name|default:"Unknown" }}</h1>
+    <br>
+    <hr>
+    <h3>Courses Taught</h3>
+    <hr>
+    <ul>
+        {% for obj in courseinstances %}
+            <li>{% course obj obj.idcourse.name %} ({{obj.idcourse.idcurriculum.abbreviation}} {{obj.idcourse.number}})</li>
+            {% if obj.idrating.instructorcontribution != None %}
+            <dl class="dl-horizontal">
+                <dt>Instructor Contribution</dt>
+                <dd>{{obj.idrating.instructorcontribution}}</dd>
+                <dt>Instructor Interest<dt>
+                <dd>{{obj.idrating.instructorinterest}}</dd>
+                <dt>Instructor Effectivenes</dt>
+                <dd>{{obj.idrating.instructoreffectiveness}}</dd>
+                <dt>Amount Learned</dt>
+                <dd>{{obj.idrating.amountlearned}}</dd>
+                <dt>Grading</dt>
+                <dd>{{obj.idrating.grading}}</dd>
+            </dl>
+            {% endif %}
+        {% endfor %}
+    </ul>
 </div>

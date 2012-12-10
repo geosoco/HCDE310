@@ -1,3 +1,4 @@
+{% load filters %}
 <br>
 <h1>{{objtype}}s</h1>
 <hr>
@@ -9,32 +10,23 @@
 <hr>
 <div class="container">
 {% if objtype == "department" %}
-<table class="table table-hover">
-    <th>Name<th>
+<ul>
     {% for curriculum in objects %}
-    <tr>
-        <td>{{curriculum.name}} ({{curriculum.abbreviation}})</td>
-    </tr>
+    <li>{% curriculum curriculum curriculum.name%} ({{curriculum.abbreviation}})</li>
     {% endfor %}
-</table>
+</ul>
 {% elif objtype == "course" %}
-<table class="table table-hover">
-    <th>Name<th>
+<ul>
     {% for course in objects %}
-    <tr>
-        <td>{{course.name}}</td>
-    </tr>
+    <li>{% course course course.name%} ({{course.idcurriculum.abbreviation}} {{course.number}})</li>
     {% endfor %}
-</table>
+</ul>
 {% elif objtype == "instructor" %}
-<table class="table table-hover">
-    <th>Name<th>
+<ul>
     {% for instructor in objects %}
-    <tr>
-        <td>{{instructor.name}}</td>
-    </tr>
+    <li>{% instructor instructor instructor.name %}</li>
     {% endfor %}
-</table>
+</ul>
 
 {% endif %}
 </div>
