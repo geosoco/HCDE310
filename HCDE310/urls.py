@@ -30,6 +30,7 @@ urlpatterns = patterns('',
 
     #debug & test
     url(r'^sqldebug/$', 'main.views.sqldebug'),
+
     # Examples:
     # url(r'^$', 'HCDE310.views.home', name='home'),
     (r'^api/', include(v1_api.urls)),

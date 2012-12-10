@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="{{STATIC_URL}}css/normalize.css" type="text/css" media="screen"/>
-    <title>{{section.idcourse.iddepartment.abbreviation}} {{section.idcourse.number}} {{section.idcourse.name}}</title>
-  </head>
-  <body>
-    <h1>{{section.idcourse.iddepartment.abbreviation}} {{section.idcourse.number}} {{section.idcourse.name}}</h1>
-
-    Course Whole: {{section.idrating.coursewhole}}
-  </body>
-</html>
+<div class="container">
+    <br>
+    <h1>{{section.idcourse.idcurriculum.abbreviation}} {{section.idcourse.number}} {{section.section}}</h1>
+    <h2 align="center">{{section.idcourse.name}}</h2>
+    <p>Course Whole: {{section.idrating.coursewhole}}</p>
+    <p>{{section.section.day}}</p>
+</div>
