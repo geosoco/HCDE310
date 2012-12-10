@@ -1,4 +1,4 @@
-<br>
+{% load filters %}
 <h1>{{objtype}}s</h1>
 <hr>
 <ul class="inline" id="buttoncenter">
@@ -11,9 +11,9 @@
 {% if objtype == "department" %}
 <table class="table table-hover">
     <th>Name<th>
-    {% for curriculum in objects %}
+    {% for o in objects %}
     <tr>
-        <td>{{curriculum.name}} ({{curriculum.abbreviation}})</td>
+        <td>{% curriculum o %}</td>
     </tr>
     {% endfor %}
 </table>
@@ -22,7 +22,7 @@
     <th>Name<th>
     {% for course in objects %}
     <tr>
-        <td>{{course.name}}</td>
+        <td>{% course course course.name%}</td>
     </tr>
     {% endfor %}
 </table>

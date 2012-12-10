@@ -24,8 +24,8 @@ class CourseResource(ModelResource):
 			'description': ALL,
 			'comment': ALL,
 			'query': ['icontains',],
+			'sections': ALL_WITH_RELATIONS,
 			'days': ['eq',],
-			'ger': ['eq',],
 		}
 
 	def build_filters(self, filters=None):
@@ -42,12 +42,13 @@ class CourseResource(ModelResource):
 	                )
 	        orm_filters.update({'custom': qset})
 
-	    if('ger' in filters):
-	    	query = filters['ger']
-	    	qset = (
-	    		)
-
-	    	orm_filters.extend({'custom': qset})
+	    #if('ger' in filters):
+	    # 	query = filters['ger']
+	    #	qset = (
+	    #		Q
+	    #		)
+		#
+	    #	orm_filters.update({'custom': qset})
 
 	    return orm_filters
 
@@ -58,6 +59,15 @@ class CourseResource(ModelResource):
 	        custom = None
 
 	    semi_filtered = super(CourseResource, self).apply_filters(request, applicable_filters)
+
+	    if "ger" in request.REQUEST:
+	    	ger = int(request.REQUEST['ger'])
+	    	semi_filtered = semi_filtered.extra(where=["GenEdReqs & %s = %s"], params=(ger, ger))
+
+	    if "days" in request.REQUEST:
+	    	d = (~int(request.REQUEST['days'])) & 255
+	    	semi_filtered = semi_filtered.extra(where=["meeting.Day & %s = 0"], params=(d), tables=['section', 'meeting'])
+
 
 	    return semi_filtered.filter(custom) if custom else semi_filtered
 
@@ -83,6 +93,10 @@ class RoomResource(ModelResource):
 	class Meta:
 		queryset = Room.objects.all()
 		resource_name = 'room'
+		filtering = {
+			'building': ALL_WITH_RELATIONS,
+			'name': ALL_WITH_RELATIONS
+		}
 
 
 
@@ -101,6 +115,12 @@ class MeetingResource(ModelResource):
 	class Meta:
 		queryset = Meeting.objects.all()
 		resource_name = 'meeting'
+		filtering = {
+			'endtime': ALL,
+			'starttime': ALL,
+			'day': ALL,
+			'room': ALL_WITH_RELATIONS,
+		}
 
 class SectionResource(ModelResource):
 	meetings = fields.ToManyField(MeetingResource, 'meeting_set', full=True)

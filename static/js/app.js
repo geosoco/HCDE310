@@ -14,6 +14,37 @@ $.fn.spin = function(opts) {
   return this;
 };
 
+function parseQueryString(query) {
+	var nvpair = {};
+		var qs = query.replace('?', '');
+    	var pairs = qs.split('&');
+    	$.each(pairs, function(i, v){
+      		var pair = v.split('=');
+      		nvpair[pair[0]] = pair[1];
+    	});
+
+    return nvpair;
+}
+
+/*
+    NW = 1
+    VLPA = 2
+    IS = 4
+    W = 8
+    EC = 16
+    QSR = 32
+*/
+function genedreqCodeToNumber(ger) {
+	switch(ger) {
+		case 'NW': return 1;
+		case 'VLPA': return 2;
+		case 'IS': return 4;
+		case 'W': return 8;
+		case 'EC': return 16;
+		case 'QSR': return 32;
+		default: return 0;
+	}
+}
 
 
 window.Course = Backbone.Model.extend({
@@ -42,8 +73,48 @@ window.SearchView = Backbone.View.extend({
 
     doSearch: function( event ) {
     	console.log('doSearch');
-    	var str = $('#query').val();
-    	app.navigate('search/' + str, {trigger: true} );
+    	var params = {};
+
+    	/*
+    	 * query string
+    	 *
+    	 */
+    	var str = $('#query').val().trim();
+    	if(str !== undefined && str.length > 0) {
+    		params['query'] = str;
+    	}
+
+    	/*
+    	 *
+    	 * genedreqs
+    	 */
+    	var genedreqs = 0;
+     	$('input[name="ger"] :checked').each(function() {
+       		genedreqs |= genedreqCodeToNumber($(this).val());
+     	});
+     	if(genedreqs > 0) {
+     		params['ger'] = genedreqs;
+     	}
+
+     	/*
+     	 * start time
+     	 *
+     	 */
+     	 var startTime = $('#start').val();
+     	 if(startTime !== undefined && startTime.length > 0) {
+     	 	params['sections__meetings__starttime__gte'] = startTime;
+     	 }
+
+     	/*
+     	 * end time
+     	 *
+     	 */
+     	 var endTime = $('#end').val();
+     	 if(endTime !== undefined && endTime.length > 0) {
+     	 	params['sections__meetings__endtime__lte'] = endTime;
+     	 }     	 
+
+    	app.navigate('search/?' + $.param(params), {trigger: true} );
     	return false;
     },
     doLookahead: function( event ) {
@@ -75,9 +146,8 @@ window.ResultsView = Backbone.View.extend({
 window.SearchApp = Backbone.Router.extend({
 	
 	routes: {
-		"": 					"main", 
-		"search/:query":        "search",  		// #search/kiwis
-		"search/:query/p:page": "search",   	// #search/kiwis/p7
+		"": 					"main",
+		"search/*query": 		"search", 
 		"curriculums":			"browseCurriculums",
 		"courses":				"browseCourses",
 		"instructors":			"browseInstructors",
@@ -94,7 +164,13 @@ window.SearchApp = Backbone.Router.extend({
 
 	},
 
-	search: function(query, page) {
+	search: function(query) {
+		var page = null;
+		console.dir(query);
+
+		var params = parseQueryString(query);
+    	console.dir(params);
+
 		search = new ResultsView({
 		        	el: $('#main')
 		      	});
@@ -106,7 +182,7 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
-		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&query=' + query + '', {
+		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
 			success: function(data) {
 				console.log('ajax success!');
 				console.dir(data);
@@ -114,7 +190,8 @@ window.SearchApp = Backbone.Router.extend({
 
 				var columns = [
 				    { name: "Course", field: "course", id: "course", sortable: true, width: 100 },
-				    { name: "Name", field: "name", id: "name", width: 300 }
+				    { name: "Name", field: "name", id: "name", width: 300 },
+
 				];
 
 				var rows = data.objects.map(function(d,i){

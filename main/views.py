@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import *
 from main.models import Curriculum, Course, Section, Rating, Instructor
 import simplejson as json
+from django.db import connection
 #from main.filters import *
 
 
@@ -85,3 +86,6 @@ def instructorlist(request, letter=None):
         instructors = Instructor.objects.filter(name__startswith=letter)
         return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'instructor', 'objects': instructors, 'letters': letters})
 
+
+def sqldebug(request):
+	return render(request, 'sqldebug.html', {'sql_queries': connection.queries})

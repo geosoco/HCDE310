@@ -27,6 +27,9 @@ urlpatterns = patterns('',
     url(r'^curriculum/(?P<letter>\w)?$', 'main.views.curriculum'),
     url(r'^courselist/(?P<letter>\w)?$', 'main.views.courselist'),
     url(r'^instructorlist/(?P<letter>\w)?$', 'main.views.instructorlist'),
+
+    #debug & test
+    url(r'^sqldebug/$', 'main.views.sqldebug'),
     # Examples:
     # url(r'^$', 'HCDE310.views.home', name='home'),
     (r'^api/', include(v1_api.urls)),
