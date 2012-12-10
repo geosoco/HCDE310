@@ -9,5 +9,18 @@
     <h1>{{section.idcourse.iddepartment.abbreviation}} {{section.idcourse.number}} {{section.idcourse.name}}</h1>
 
     Course Whole: {{section.idrating.coursewhole}}
+
+    <pre>
+    	{{test}}
+    </pre>
+
+    <p>section.idmeeting|length: {{section.idmeeting|length}}</p>
+    <p>section.meeting|length: {{section.meeting|length}}</p>
+    <p>section.meetings|length: {{section.meetings.all|length}}</p>
+    <p>section.meeting_set|length: {{section.meeting_set.all|length}}</p>
+
+    {% for item in section.meeting_set.all %}
+   		<p>{{item.starttime}}</p>
+   	{% endfor %}
   </body>
 </html>

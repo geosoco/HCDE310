@@ -110,7 +110,7 @@ class MeetingTypeResource(ModelResource):
 class MeetingResource(ModelResource):
 	meetingtype = fields.ToOneField(MeetingTypeResource, 'idmeetingtype', full=True)
 	room = fields.ToOneField(RoomResource, 'idroom', full=True)
-	#section = fields.ToOneField("main.api.SectionResource", 'idSection', full=True)
+	section = fields.ToOneField("main.api.SectionResource", 'section', full=True)
 
 	class Meta:
 		queryset = Meeting.objects.all()
@@ -123,7 +123,7 @@ class MeetingResource(ModelResource):
 		}
 
 class SectionResource(ModelResource):
-	meetings = fields.ToManyField(MeetingResource, 'meeting', full=True, related_name='idmeeting')
+	meetings = fields.ToManyField(MeetingResource, 'meeting', full=True, related_name='meetings')
 	instructor = fields.ToOneField(InstructorResource, 'idinstructor', full=True, null=True)
 	ratings = fields.ToOneField(RatingResource, 'idrating', full=True, null=True)
 	course = fields.ToOneField(CourseResource, 'course', full=True)

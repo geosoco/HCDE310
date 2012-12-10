@@ -147,7 +147,7 @@ class Meeting(models.Model):
     day = models.IntegerField(null=True, db_column='Day', blank=True) # Field name made lowercase.
     starttime = models.IntegerField(null=True, db_column='StartTime', blank=True) # Field name made lowercase.
     endtime = models.IntegerField(null=True, db_column='EndTime', blank=True) # Field name made lowercase.
-    idinstance = models.ForeignKey(Section, db_column='idSection') # Field name made lowercase.
+    idsection = models.ForeignKey(Section, db_column='idSection') # Field name made lowercase.
     idroom = models.ForeignKey(Room, null=True, db_column='idRoom', blank=True) # Field name made lowercase.
     idmeetingtype = models.ForeignKey(MeetingType, db_column='idMeetingType') # Field name made lowercase.
     class Meta:
