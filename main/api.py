@@ -12,7 +12,7 @@ class CurriculumResource(ModelResource):
 		resource_name = 'curriculum'
 
 class CourseResource(ModelResource):
-	sections = fields.ToManyField("main.api.SectionResource", 'section_set', full=True)
+	sections = fields.ToManyField("main.api.SectionResource", 'section_set', full=True, related_name='course')
 	curriculum = fields.ToOneField(CurriculumResource, 'idcurriculum', full=True)
 
 	class Meta:
@@ -123,10 +123,10 @@ class MeetingResource(ModelResource):
 		}
 
 class SectionResource(ModelResource):
-	meetings = fields.ToManyField(MeetingResource, 'meeting_set', full=True)
+	meetings = fields.ToManyField(MeetingResource, 'meeting', full=True, related_name='idmeeting')
 	instructor = fields.ToOneField(InstructorResource, 'idinstructor', full=True, null=True)
 	ratings = fields.ToOneField(RatingResource, 'idrating', full=True, null=True)
-	#course = fields.ToOneField(CourseResource, 'idCourse', full=True)
+	course = fields.ToOneField(CourseResource, 'course', full=True)
 
 	class Meta:
 		queryset = Section.objects.all()
