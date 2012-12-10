@@ -1,8 +1,4 @@
 {% load filters %}
-<<<<<<< HEAD
-=======
-<br>
->>>>>>> 354f8037108a25275675ef7db86be52ffad445ea
 <h1>{{objtype}}s</h1>
 <hr>
 <ul class="inline" id="buttoncenter">
@@ -13,30 +9,15 @@
 <hr>
 <div class="container">
 {% if objtype == "department" %}
-<<<<<<< HEAD
-<table class="table table-hover">
-    <th>Name<th>
-    {% for o in objects %}
-    <tr>
-        <td>{% curriculum o %}</td>
-    </tr>
-=======
 <ul>
     {% for curriculum in objects %}
     <li>{% curriculum curriculum curriculum.name%} ({{curriculum.abbreviation}})</li>
->>>>>>> 354f8037108a25275675ef7db86be52ffad445ea
     {% endfor %}
 </ul>
 {% elif objtype == "course" %}
 <ul>
     {% for course in objects %}
-<<<<<<< HEAD
-    <tr>
-        <td>{% course course course.name%}</td>
-    </tr>
-=======
     <li>{% course course course.name%} ({{course.idcurriculum.abbreviation}} {{course.number}})</li>
->>>>>>> 354f8037108a25275675ef7db86be52ffad445ea
     {% endfor %}
 </ul>
 {% elif objtype == "instructor" %}
