@@ -6,6 +6,9 @@ body { background-color: #fff; padding-top: 50px; }
 
 #accordion2, #searchform { width: 600px; }
 
+#calendar{
+    background-color: #9999CC;
+}
 
 #slickgrid {
 	width: 600px;
