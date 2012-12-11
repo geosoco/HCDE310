@@ -2,9 +2,11 @@
 from django.template import Context, loader
 from django.http import HttpResponse
 from django.shortcuts import *
-from main.models import Curriculum, Course, Section, Rating, Instructor
+from main.models import Curriculum, Course, Section, Rating, Instructor, Meeting
 import simplejson as json
 from django.db import connection
+from django.core import serializers
+from django.db.models import Q
 #from main.filters import *
 
 
@@ -89,3 +91,94 @@ def instructorlist(request, letter=None):
 
 def sqldebug(request):
 	return render(request, 'sqldebug.html', {'sql_queries': connection.queries})
+
+
+def search(request):
+	semi_filtered = Course.objects.select_related().all()
+	qset = ()
+	if('query' in request.REQUEST):
+		query = request.REQUEST['query']
+		qset = (
+			Q(name__icontains=query) |
+			Q(description__icontains=query) |
+			Q(curriculum__abbreviation__icontains=query)
+		)
+
+	#if 'starttime' in request.REQUEST:
+	#	st = request.REQUEST['starttime']
+	#	semi_filtered = semi_filtered.filter(section__meeting__starttime__gte=st)
+
+	#if 'endtime' in request.REQUEST:
+	#	st = request.REQUEST['endtime']
+	#	semi_filtered = semi_filtered.filter(section__meeting__endtime__gte=st)
+
+ 	if "ger" in request.REQUEST:
+	    ger = int(request.REQUEST['ger'])
+	    semi_filtered = semi_filtered.extra(where=["GenEdReqs & %s = %s"], params=(ger, ger))
+
+	if "days" in request.REQUEST:
+	    d = (~int(request.REQUEST['days'])) & 255
+	    semi_filtered = semi_filtered.extra(where=["meeting.Day & %s = 0"], params=(d), tables=['section', 'meeting'])
+
+
+
+	objs = semi_filtered.filter(qset)
+
+
+	data = {}
+	data['count'] = objs.count()
+	data['items'] = []
+	data['page'] = 0
+	data['page_count'] = 0
+
+	items = []
+	for o in objs:
+		item = {}
+		item['curriculum'] = { 'id': o.curriculum.id , 'abbreviation': o.curriculum.abbreviation, 'name': o.curriculum.name }
+		item['number'] = o.number
+		item['GenEdReqs'] = o.genedreqs
+		item['description'] = o.description
+		item['name'] = o.name
+		item['comment'] = o.comment
+		item['mincredits'] = o.mincredits
+		item['maxcredits'] = o.maxcredits
+		sections = []
+		for s in o.section_set.all():
+			section = {}
+			section['id'] = s.id
+			section['section'] = s.section
+			section['quarter'] = s.quarter
+			section['year'] = s.year
+			section['num_enrolled'] = s.numenrolled
+			section['max_enrolled'] = s.maxenrollment
+			section['sln'] = s.sln
+			meetings = []
+			for m in s.meeting_set.all():
+				meeting = {}
+				meeting['day'] = m.day
+				meeting['starttime'] = m.starttime
+				meeting['endtime'] = m.endtime
+				meeting['type'] = m.meetingtype.name
+				meeting['room'] = m.room.name
+				meeting['building'] = m.room.building.abbreviation
+				meetings.append(meeting)
+			section['meetings'] = meetings
+			sections.append(section)
+		item['sections'] = sections
+		items.append(item)
+
+	data['items'] = items
+
+	jsondata = json.dumps(data)
+
+	#data = serializers.serialize("json", Meeting.objects.select_related().filter(qset), relations={
+	#	'room' : {'relations': ('building',)}, 
+	#	'section' : {
+	#		'relations': { 
+	#			'course' : {'relations': ('curriculum',) } 
+	#		}
+	#	}
+	#})
+	return HttpResponse(jsondata, mimetype='application/json; charset=utf-8')
+
+
