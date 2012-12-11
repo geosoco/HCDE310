@@ -182,7 +182,7 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
-		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
+		$.ajax( BASE_URL + 'search/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
 			success: function(data) {
 				console.log('ajax success!');
 				console.dir(data);
@@ -191,13 +191,34 @@ window.SearchApp = Backbone.Router.extend({
 				var columns = [
 				    { name: "Course", field: "course", id: "course", sortable: true, width: 100 },
 				    { name: "Name", field: "name", id: "name", width: 300 },
+				    { name: "Credits", field: "credits", id:"credits", width: 32},
+				    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 50}
 
 				];
 
-				var rows = data.objects.map(function(d,i){
+				var rows = data.items.map(function(d,i){
+
+					var enrolled = 0;
+					var maxenrolled = -1;
+
+					if(d.sections.length > 0) {
+						for(var i = 0; i < d.sections.length; i++ ) {
+							enrolled = d.sections[i].numenrolled;
+							maxenrolled = d.sections[i].maxenrolled;
+						}
+					}
+
+					var enrollment = '';
+					if(maxenrolled < 0) {
+						enrollment = enrolled + "/" + maxenrolled;
+					}
+
+
 					return {
 						"course": d.curriculum.abbreviation + " " + d.number,
-						"name": d.name
+						"name": d.name,
+						"credits": d.mincredits,
+						"enrollment": enrollment,
 					}
 				});
 

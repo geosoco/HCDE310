@@ -33,6 +33,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'HCDE310.views.home', name='home'),
     (r'^api/', include(v1_api.urls)),
+    (r'^search/', 'main.views.search'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
