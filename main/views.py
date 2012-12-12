@@ -58,10 +58,12 @@ def course_readable(request, curriculum, num):
 
 
 def section(request, curriculum, num, year, quarter, section):
+    times = [730,830,930,1030,1130,1230,1330,1430,1530,1630,1730,1830]
 	cur = get_object_or_404(Curriculum, abbreviation=curriculum)
 	c = get_object_or_404(Course, idcurriculum=cur, number=num)
 	s = get_object_or_404(Section, idcourse=c, year=year, quarter=quarter, section=section)
-	return render(request, 'template.html', {"course" : c, "section" : s, "curriculum" : cur, "inner_page": 'section.html'})
+	return render(request, 'template.html', {"course" : c, "section" : s, "curriculum" : cur, "inner_page": 'section.html', 'times':times})
+
     
 def curriculum(request, letter=None):
     letters = map(chr, range(65, 91))
@@ -79,7 +81,6 @@ def courselist(request, letter=None):
         courses = Course.objects.filter(name__startswith=letter)
         return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'course', 'objects': courses, 'letters': letters, 'pageurl':'courselist/'})
 
-
 def instructorlist(request, letter=None):
     letters = map(chr, range(65, 91))
     if letter is None: 
@@ -87,7 +88,6 @@ def instructorlist(request, letter=None):
     else:
         instructors = Instructor.objects.filter(name__startswith=letter)
         return render(request, 'template.html', {'inner_page': 'objlist.html', 'objtype': 'instructor', 'objects': instructors, 'letters': letters, 'pageurl':'instructorlist/'})
-
 
 def sqldebug(request):
 	return render(request, 'sqldebug.html', {'sql_queries': connection.queries})

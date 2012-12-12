@@ -7,24 +7,7 @@
         <br>
         <div class="well">
             <p>{{course.description}}</p>
-            {% if course.genedreqs != None %}
-                <div style="display: inline"
-                <p>Credit type:</p>
-                {% if course.genedreqs == 1 %}
-                    <span class="label label-info">NW</span>
-                {% elif course.genedreqs == 2 %}
-                    <span class="label label-info">VLPA</span>
-                {% elif course.genedreqs == 4 %}
-                    <span class="label label-info">I&amp;S</span>
-                {% elif course.genedreqs == 8 %}
-                    <span class="label label-info">W</span>
-                {% elif course.genedreqs == 16 %}
-                    <span class="label label-info">EC</span>
-                {% elif course.genedreqs == 32 %}
-                    <span class="label label-info">QSR</span>
-                {% endif %}
-                </div>
-            {% endif %}
+            <p>Credit type: {% credittype course %}</p>
         </div>
         <br>
         <br>

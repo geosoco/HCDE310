@@ -1,26 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="{{STATIC_URL}}css/normalize.css" type="text/css" media="screen"/>
-    <title>{{section.idcourse.iddepartment.abbreviation}} {{section.idcourse.number}} {{section.idcourse.name}}</title>
-  </head>
-  <body>
-    <h1>{{section.idcourse.iddepartment.abbreviation}} {{section.idcourse.number}} {{section.idcourse.name}}</h1>
+{% load filters %}
+<div class="container">
+    <br>
+    <h1>{{section.idcourse.idcurriculum.abbreviation}} {{section.idcourse.number}} {{section.section}}</h1>
+    <h2 align="center">{{section.idcourse.name}}</h2>
+    
+    <div style="width: 700px; margin: 0 auto;">
+        <br>
+        <div class="well">
+            <p>{{section.idcourse.description}}</p>
+        </div>
+        <br>
+    </div>
+    
+    <div class="span5">
+        <div class="well">
+            <dl class="dl-horizontal">
+            {% for item in section.meeting_set.all %}
+            <dt>Status:</dt>
+            <dd>{% status section %}</dd>
+            <dt>Days:</dt>
+            <dd>{% day item %}</dd>
+            <dt>Start Time:<dt>
+            <dd>{% timecorrect item.starttime %}</dd>
+            <dt>End Time:</dt>
+            <dd>{% timecorrect item.endtime %}</dd>
+            <dt>Room:</dt>
+            <dd>{{item.idroom.idbuilding.name}} {{item.idroom.name}}</dd>
+            <dd><a href="http://www.washington.edu/maps/?{{item.idroom.idbuilding.name}}">Map to building</a></dd>
+            <dt>Credit Type:</dt>
+            <dd>{% credittype section.idcourse %}</dd>
+            </dl>
+            {% endfor %}
+        </div>
+    </div>
+    
+   <div class="offset6">
+        {% for item in section.meeting_set.all %}
+            {% buildingmap item.idroom.idbuilding.name %}
+        {% endfor %}
+    </div>
+    <br>
+    <table class="table table-bordered">
+        <th>Time</th>
+        <th>Mon</th>
+        <th>Tues</th>
+        <th>Wed</th>
+        <th>Thurs</th>
+        <th>Fri</th>
+        <th>Sat</th>
+        {% for item in section.meeting_set.all %}
+        {% for time in times %}
+        <tr>
+            <td>{% timecorrect time %}</td>
+            {% calendarhelper item 'M' time %}
+            {% calendarhelper item 'Tu' time %}
+            {% calendarhelper item 'W' time %}
+            {% calendarhelper item 'Th' time %}
+            {% calendarhelper item 'F' time %}
+            {% calendarhelper item 'S' time %}
+        </tr>
+            <!-- {% for item in section.meeting_set.all %}
+            <tr>
+            {% endfor %} -->
+        {% endfor %}
+        {% endfor %}
+    <table>
+</div>
 
-    Course Whole: {{section.idrating.coursewhole}}
-
-    <pre>
-    	{{test}}
-    </pre>
-
-    <p>section.idmeeting|length: {{section.idmeeting|length}}</p>
-    <p>section.meeting|length: {{section.meeting|length}}</p>
-    <p>section.meetings|length: {{section.meetings.all|length}}</p>
-    <p>section.meeting_set|length: {{section.meeting_set.all|length}}</p>
-
-    {% for item in section.meeting_set.all %}
-   		<p>{{item.starttime}}</p>
-   	{% endfor %}
-  </body>
-</html>
