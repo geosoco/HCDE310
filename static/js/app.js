@@ -102,7 +102,7 @@ window.SearchView = Backbone.View.extend({
      	 */
      	 var startTime = $('#start').val();
      	 if(startTime !== undefined && startTime.length > 0) {
-     	 	params['sections__meetings__starttime__gte'] = startTime;
+     	 	params['starttime'] = startTime;
      	 }
 
      	/*
@@ -111,7 +111,7 @@ window.SearchView = Backbone.View.extend({
      	 */
      	 var endTime = $('#end').val();
      	 if(endTime !== undefined && endTime.length > 0) {
-     	 	params['sections__meetings__endtime__lte'] = endTime;
+     	 	params['endtime'] = endTime;
      	 }     	 
 
     	app.navigate('search/?' + $.param(params), {trigger: true} );
@@ -182,7 +182,7 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
-		$.ajax( BASE_URL + 'search/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
+		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
 			success: function(data) {
 				console.log('ajax success!');
 				console.dir(data);
@@ -191,12 +191,12 @@ window.SearchApp = Backbone.Router.extend({
 				var columns = [
 				    { name: "Course", field: "course", id: "course", sortable: true, width: 100 },
 				    { name: "Name", field: "name", id: "name", width: 300 },
-				    { name: "Credits", field: "credits", id:"credits", width: 32},
-				    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 50}
+				    { name: "Credits", field: "credits", id:"credits", width: 50},
+				    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 80}
 
 				];
 
-				var rows = data.items.map(function(d,i){
+				var rows = data.objects.map(function(d,i){
 
 					var enrolled = 0;
 					var maxenrolled = -1;
@@ -204,12 +204,12 @@ window.SearchApp = Backbone.Router.extend({
 					if(d.sections.length > 0) {
 						for(var i = 0; i < d.sections.length; i++ ) {
 							enrolled = d.sections[i].numenrolled;
-							maxenrolled = d.sections[i].maxenrolled;
+							maxenrolled = d.sections[i].maxenrollment;
 						}
 					}
 
 					var enrollment = '';
-					if(maxenrolled < 0) {
+					if(maxenrolled > 0) {
 						enrollment = enrolled + "/" + maxenrolled;
 					}
 

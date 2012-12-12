@@ -7,12 +7,13 @@ from django.db.models import Q
 
 
 class CurriculumResource(ModelResource):
+	#courses = fields.ToManyField("main.api.CourseResource", 'course_set', related_name='idcurriculum')
 	class Meta:
 		queryset = Curriculum.objects.all()
 		resource_name = 'curriculum'
 
 class CourseResource(ModelResource):
-	sections = fields.ToManyField("main.api.SectionResource", 'section_set', full=True, related_name='course')
+	sections = fields.ToManyField("main.api.SectionResource", 'section_set', full=True, related_name='idcourse')
 	curriculum = fields.ToOneField(CurriculumResource, 'idcurriculum', full=True)
 
 	class Meta:
@@ -24,8 +25,9 @@ class CourseResource(ModelResource):
 			'description': ALL,
 			'comment': ALL,
 			'query': ['icontains',],
-			'sections': ALL_WITH_RELATIONS,
+			'section': ALL_WITH_RELATIONS,
 			'days': ['eq',],
+			'endtime': ALL,
 		}
 
 	def build_filters(self, filters=None):
@@ -68,6 +70,15 @@ class CourseResource(ModelResource):
 	    	d = (~int(request.REQUEST['days'])) & 255
 	    	semi_filtered = semi_filtered.extra(where=["meeting.Day & %s = 0"], params=(d), tables=['section', 'meeting'])
 
+	    if "endtime" in request.REQUEST:
+	    	endtime = int(request.REQUEST['endtime'])
+	    	semi_filtered = semi_filtered.exclude(section__meeting__endtime__gt=endtime)
+
+	    if "starttime" in request.REQUEST:
+	    	starttime = int(request.REQUEST['starttime'])
+	    	semi_filtered = semi_filtered.exclude(section__meeting__starttime__lt=starttime)
+
+
 
 	    return semi_filtered.filter(custom) if custom else semi_filtered
 
@@ -95,7 +106,7 @@ class RoomResource(ModelResource):
 		resource_name = 'room'
 		filtering = {
 			'building': ALL_WITH_RELATIONS,
-			'name': ALL_WITH_RELATIONS
+			'name': ALL,
 		}
 
 
@@ -110,7 +121,7 @@ class MeetingTypeResource(ModelResource):
 class MeetingResource(ModelResource):
 	meetingtype = fields.ToOneField(MeetingTypeResource, 'idmeetingtype', full=True)
 	room = fields.ToOneField(RoomResource, 'idroom', full=True)
-	section = fields.ToOneField("main.api.SectionResource", 'section', full=True)
+	section = fields.ToOneField("main.api.SectionResource", 'idsection')
 
 	class Meta:
 		queryset = Meeting.objects.all()
@@ -123,15 +134,15 @@ class MeetingResource(ModelResource):
 		}
 
 class SectionResource(ModelResource):
-	meetings = fields.ToManyField(MeetingResource, 'meeting', full=True, related_name='meetings')
+	meetings = fields.ToManyField(MeetingResource, 'meeting_set', full=True, related_name='section')
 	instructor = fields.ToOneField(InstructorResource, 'idinstructor', full=True, null=True)
 	ratings = fields.ToOneField(RatingResource, 'idrating', full=True, null=True)
-	course = fields.ToOneField(CourseResource, 'course', full=True)
+	course = fields.ToOneField(CourseResource, 'idcourse')
 
 	class Meta:
 		queryset = Section.objects.all()
 		resource_name = 'section'
 		filtering = {
-			'meetings': ALL_WITH_RELATIONS,
+			'meeting': ALL_WITH_RELATIONS,
 		}
 
