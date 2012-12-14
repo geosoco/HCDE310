@@ -51,7 +51,7 @@ GEN_ED_REQ_CODES = [
 	{id: 2, abbr: "VLPA", name: "Visual Literary and Performing Arts"},
 	{id: 4, abbr: "IS", name: "Individuals and Socieites"},
 	{id: 8, abbr: "W", name: "Writing"},
-	{id:16, abbr: "EC", name: "English Composition"},
+	{id:16, abbr: "C", name: "Composition"},
 	{id:32, abbr: "QSR", name: "Quantitative and Symbolic Reasoning"}
 ]
 
@@ -74,7 +74,14 @@ function GenEdCodeToAbbrString(gerVal) {
 	return codes.join(', ')
 }
 
+function getgerval() {
+	var genedreqs = 0;
+	$("input[name=ger]:checked").each(function() {
+		genedreqs |= genedreqCodeToNumber($(this).val());
+	});
 
+ 	return genedreqs;
+}
 
 /*
  *
@@ -172,10 +179,7 @@ window.SearchView = Backbone.View.extend({
     	 *
     	 * genedreqs
     	 */
-    	var genedreqs = 0;
-     	$('input[name="ger"] :checked').each(function() {
-       		genedreqs |= genedreqCodeToNumber($(this).val());
-     	});
+    	var genedreqs = getgerval();
      	if(genedreqs > 0) {
      		params['ger'] = genedreqs;
      	}
@@ -184,7 +188,7 @@ window.SearchView = Backbone.View.extend({
      	 * start time
      	 *
      	 */
-     	 var startTime = $('#start').val();
+     	 var startTime = $('#starttime').val();
      	 if(startTime !== undefined && startTime.length > 0) {
      	 	params['starttime'] = startTime;
      	 }
@@ -193,10 +197,13 @@ window.SearchView = Backbone.View.extend({
      	 * end time
      	 *
      	 */
-     	 var endTime = $('#end').val();
+     	 var endTime = $('#endtime').val();
      	 if(endTime !== undefined && endTime.length > 0) {
      	 	params['endtime'] = endTime;
-     	 }     	 
+     	 }
+
+
+     	 query.set(params);
 
     	app.navigate('search/?' + $.param(params), {trigger: true} );
     	return false;
@@ -218,6 +225,31 @@ FilterPanelView = Backbone.View.extend({
 
     	var html = Mustache.render($("#tmpl_filterpanel").html(), {} );
 		this.$el.html( html );
+
+		if(this.model.get('ger') > 0) {
+			var ger = this.model.get('ger');
+			$('input[name="ger"]').each(function(d,i){
+				console.dir(d);
+			});
+		};
+
+	}, 
+
+	events: {
+		"change input": "changed",
+	},
+
+	changed: function(ev) {
+		console.log('input changed: ' + $(ev.srcElement).attr('name'));
+		console.dir(ev);
+		console.dir($(ev.srcElement).val());
+		var name = $(ev.srcElement).attr('name');
+		if( name === 'ger') {
+			var newval = getgerval();
+			var oldval = query.get('ger');
+			console.log('ger changed: from "' + oldval + '" to "' + newval + '"')
+			query.set('ger', getgerval());
+		}
 	}
 
 });
@@ -383,7 +415,7 @@ function copyIfNotDefault(q, prop, defaultval) {
 	return q;
 }
 
-function doQuery() {
+function buildQueryString() {
 	var q = {}
 
 	q = copyIfNotDefault(q, 'offset', 0);
@@ -393,12 +425,19 @@ function doQuery() {
 	q = copyIfNotDefault(q, 'endtime', null);
 	q = copyIfNotDefault(q, 'query', '');
 	q = copyIfNotDefault(q, 'offered', false);
-	q = copyIfNotDefault(q, 'open', false);
+	q = copyIfNotDefault(q, 'open', false);	
+
+	return q;
+}
+
+function doQuery() {
+	q = buildQueryString();
 
 	var spinner = $('#results').first().spin("small" );
 
 	// request our data
 	$.ajax( BASE_URL + 'api/v1/course/?' + $.param(q) + '', {
+		dataType: 'json',
 		success: function(data) {
 			//console.log('ajax success!');
 			console.dir(data);
@@ -479,18 +518,19 @@ window.SearchApp = Backbone.Router.extend({
 	},
 
 	search: function(querystr) {
+		console.log('search!');
 		console.dir(querystr);
 
 		var params = parseQueryString(querystr);
     	console.dir(params);
 
-		search = new ResultsView({
+		query.set(params);
+		this.results = this.results || new ResultsView({
 		        	el: '#main',
+		        	model: query,
 		      	});
 
-
-		query.set(params);
-
+		doQuery();
 	},
 
 
@@ -509,7 +549,7 @@ window.SearchApp = Backbone.Router.extend({
 queryEvent.on("all", function(eventname){
 	console.log("queryEvent all: " + eventname );
 	console.dir(query.toJSON());
-	doQuery();
+	app.navigate('search/?' + $.param(buildQueryString()), {trigger: true} );
 });
 
 query.on("change", function(){ 

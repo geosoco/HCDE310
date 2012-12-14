@@ -38,7 +38,7 @@
             Time:
 
             <br>
-            <select id="start">
+            <select id="starttime">
               <option value="">ANY</option>
               <option value="700">7:00AM</option>
               <option value="730">7:30AM</option>
@@ -66,7 +66,7 @@
               <option value="1830">6:30PM</option>
             </select>
             to
-            <select id="end">
+            <select id="endtime">
               <option value="">ANY</option>
               <option value="700">7:00AM</option>
               <option value="730">7:30AM</option>
@@ -94,12 +94,12 @@
               <option value="1830">6:30PM</option>
             </select>
             <h5>Credit Type:</h5>
-            <label class="checkbox inline"><input type="checkbox" name="ger[]" value="NW" checked="checked">NW</input></label>
-            <label class="checkbox inline"><input type="checkbox" name="ger[]" value="VLPA" checked="checked">VLPA</input></label>
-            <label class="checkbox inline"><input type="checkbox" name="ger[]" value="IS" checked="checked">I&amp;S</input></label>
-            <label class="checkbox inline"><input type="checkbox" name="ger[]" value="W" checked="checked">W</input></label>
-            <label class="checkbox inline"><input type="checkbox" name="ger[]" value="C" checked="checked">C</input></label>
-            <label class="checkbox inline"><input type="checkbox" name="ger[]" value="QSR" checked="checked">QSR</input></label>
+            <label class="checkbox inline"><input type="checkbox" name="ger" value="NW" checked="checked">NW</input></label>
+            <label class="checkbox inline"><input type="checkbox" name="ger" value="VLPA" checked="checked">VLPA</input></label>
+            <label class="checkbox inline"><input type="checkbox" name="ger" value="IS" checked="checked">I&amp;S</input></label>
+            <label class="checkbox inline"><input type="checkbox" name="ger" value="W" checked="checked">W</input></label>
+            <label class="checkbox inline"><input type="checkbox" name="ger" value="C" checked="checked">C</input></label>
+            <label class="checkbox inline"><input type="checkbox" name="ger" value="QSR" checked="checked">QSR</input></label>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@
       <h5>Time:</h5>
         <div class="filterval">
             <label>Begins after</label>
-            <select id="start">
+            <select id="starttime">
               <option value="">ANY</option>
               <option value="700">7:00AM</option>
               <option value="730">7:30AM</option>
@@ -155,7 +155,7 @@
               <option value="1830">6:30PM</option>
             </select>
             <label>Ends Before</label>
-            <select id="end">
+            <select id="endtime">
               <option value="">ANY</option>
               <option value="700">7:00AM</option>
               <option value="730">7:30AM</option>
@@ -189,12 +189,12 @@
     <div class="filterrow">
       <h5>Special Requirements:</h5>
         <div class="filterval">
-          <input type="checkbox" value="Natrual World (NW)">NW</input><br/>
-          <input type="checkbox" value="VLPA">VLPA</input><br/>
-          <input type="checkbox" value="Information & Societies">IS</input><br/>
-          <input type="checkbox" value="Writing">W</input><br/>
-          <input type="checkbox" value="Composition">C</input><br/>
-          <input type="checkbox" value="QSR">QSR</input><br/>
+            <label class="checkbox"><input type="checkbox" name="ger" value="NW">NW</input></label>
+            <label class="checkbox"><input type="checkbox" name="ger" value="VLPA">VLPA</input></label>
+            <label class="checkbox"><input type="checkbox" name="ger" value="IS">I&amp;S</input></label>
+            <label class="checkbox"><input type="checkbox" name="ger" value="W">W</input></label>
+            <label class="checkbox"><input type="checkbox" name="ger" value="C">C</input></label>
+            <label class="checkbox"><input type="checkbox" name="ger" value="QSR">QSR</input></label>
         </div>      
     </div>   
 </script>
