@@ -264,8 +264,8 @@ window.ResultPagerView = Backbone.View.extend({
 		var page_size = query.get('limit');
 		var maxpages = Math.floor(this.model.get('total_count') / page_size);
 		var curpage = Math.floor(this.model.get('offset') / page_size);
-		var lastpage = (curpage > 5) ? Math.min(maxpages, curpage + 2) : maxpages;
-		var firstpage = (curpage > 5) ? Math.max(0, firstpage - 5) : 0;
+		var lastpage = (curpage > 2) ? Math.min(maxpages, curpage + 3) : Math.min(maxpages, 5);
+		var firstpage = (curpage > 2) ? Math.max(0, lastpage - 5) : 0;
 
 
 
@@ -432,7 +432,7 @@ function doQuery() {
 
 				return {
 					"course": d.curriculum.abbreviation + " " + d.number,
-					"name": d.name,
+					"name": ((d.name.length > 32) ? (d.name.substring(0,32) + '...'): d.name),
 					"credits": d.mincredits,
 					"enrollment": enrollment,
 					"genedreqs": GenEdCodeToAbbrString(d.genedreqs)
