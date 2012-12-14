@@ -26,9 +26,9 @@ $.fn.spin = function(opts) {
  * Query string parser
  *
  */
-function parseQueryString(query) {
+function parseQueryString(querystr) {
 	var nvpair = {};
-		var qs = query.replace('?', '');
+		var qs = querystr.replace('?', '');
     	var pairs = qs.split('&');
     	$.each(pairs, function(i, v){
       		var pair = v.split('=');
@@ -102,7 +102,8 @@ window.QueryResult = Backbone.Model.extend({
 
 window.Query = Backbone.Model.extend({
 	defaults: {
-		"page": 0,
+		"offset": 0,
+		"limit": 20,
 		"ger": 0,
 		"starttime": null,
 		"endtime": null,
@@ -121,6 +122,13 @@ courselist = new CourseList();
 querymeta = new QueryMeta();
 query = new Query();
 
+/*
+ *
+ * Events
+ *
+ */
+
+var queryEvent = _.extend({}, Backbone.Events);
 
 
 /*
@@ -216,7 +224,7 @@ FilterPanelView = Backbone.View.extend({
 
 
 window.ResultListItem = Backbone.View.extend({
-	template: "<tr><td>{{course}}</td><td>{{name}}</td><td>{{credits}}</td><td>{{enrollment}}</td><td>{{genedreqs}}</td></tr>",
+	template: "<tr><th>{{course}}</th><td>{{name}}</td><td>{{credits}}</td><td>{{enrollment}}</td><td>{{genedreqs}}</td></tr>",
 	initialize: function() {
 
 	},
@@ -225,6 +233,8 @@ window.ResultListItem = Backbone.View.extend({
 		return Mustache.render(this.template, this.model.toJSON() );
 	}
 });
+
+
 
 window.ResultListView = Backbone.View.extend({
 	initialize: function() {
@@ -242,6 +252,75 @@ window.ResultListView = Backbone.View.extend({
 	}
 });
 
+
+
+window.ResultPagerView = Backbone.View.extend({
+	initialize: function() {
+		var results = this.model;
+		results.on("change", this.render, this);
+	},
+
+	render: function() {
+		var page_size = query.get('limit');
+		var maxpages = Math.floor(this.model.get('total_count') / page_size);
+		var curpage = Math.floor(this.model.get('offset') / page_size);
+		var firstpage = Math.max(0, curpage - 2);
+		var lastpage = Math.min(maxpages, curpage + 2);
+
+		console.log('maxpages = ' + maxpages );
+		console.log('curpage = ' + curpage );
+		console.log('firstpage = ' + firstpage );
+		console.log('lastpage = ' + lastpage );
+
+		if(maxpages > 0) {
+			var html = '<div class="pagination"><ul>'
+
+			html += '<li' + (curpage <= 0 ? ' class="disabled"' : '') + '><a data-page="' + ((curpage -1) >= 0 ? (curpage-1) : '') +'" href="#">Prev</a></li>';
+			console.log('prev page is: ' + (curpage-1));
+			for(var i = firstpage; i <= lastpage; i++ ) {
+				html += '<li' + (curpage == i ? ' class="active"' : '') + '><a data-page="' + i +'" href="#">' + (i+1) + '</a></li>';
+			}
+			console.log('next page is: ' + (curpage+1));
+			html += '<li' + (curpage > maxpages-1 ? ' class="disabled"' : '') + '><a data-page="' + ((curpage +1) <= maxpages ? (curpage+1) : '') +'" href="#">Next</a></li>';
+			html += '</ul></div>';
+
+			this.$el.html(html);
+		}
+		else {
+			this.$el.empty();
+		}
+	}, 
+
+	pageselected: function(el) {
+		console.dir(el);
+
+		console.log();
+		console.log('pageselected');
+		console.log('active: ' + $(el.srcElement).parent('li').hasClass('active'));
+		console.log('disabled: ' + $(el.srcElement).parent('li').hasClass('disabled'));
+
+		var parent = $(el.srcElement).parent('li');
+
+		// ignore if this link is disabled;
+		if(parent.hasClass('active') || parent.hasClass('disabled')) {
+			return false;
+		}
+
+		var page = $(el.srcElement).data('page') || 0;
+		var offset = page * query.get('limit');
+		query.set('offset', offset );
+
+		// disable standard handling
+		return false;
+	},
+
+	events: {
+		'click a': 'pageselected'
+	}
+});
+
+
+
 window.ResultsView = Backbone.View.extend({
 	initialize: function() {
 		this.render();
@@ -250,13 +329,24 @@ window.ResultsView = Backbone.View.extend({
 			model: query,
 		});
 		this.resultlist = new ResultListView({
-			el: '#slickgrid',
+			el: '#resultlist',
 			collection: courselist
-		})
+		});
+
+		this.pagerview = new ResultPagerView({
+			el: '#pager',
+			model: querymeta,
+		});
+
+		this.filterpanel.render();
+	},
+
+	selected: function(ev) {
+
 	},
 
 	events: {
-
+		"click tr": "selected"
 	},
 
 	render: function() {
@@ -265,6 +355,9 @@ window.ResultsView = Backbone.View.extend({
 		this.$el.html( html );
 		if(this.filterpanel) {
 			this.filterpanel.render();
+		}
+		if(this.pagerview) {
+			this.pagerview.render();
 		}
 	}
 
@@ -301,18 +394,18 @@ window.SearchApp = Backbone.Router.extend({
 
 	},
 
-	search: function(query) {
+	search: function(querystr) {
 		var page = null;
-		console.dir(query);
+		console.dir(querystr);
 
-		var params = parseQueryString(query);
+		var params = parseQueryString(querystr);
     	console.dir(params);
 
 		search = new ResultsView({
-		        	el: '#main'
+		        	el: '#main',
 		      	});
 
-		var spinner = $('#slickgrid').first().spin("small" );
+		var spinner = $('#results').first().spin("small" );
 
 		page = page || 0;
 
@@ -320,7 +413,7 @@ window.SearchApp = Backbone.Router.extend({
 
 
 		// request our data
-		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
+		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + query.get('offset') + '&limit=' + query.get('limit') + '&' + $.param(params) + '', {
 			success: function(data) {
 				meta = new QueryMeta(data.meta);
 
@@ -364,6 +457,7 @@ window.SearchApp = Backbone.Router.extend({
 				});
 
 				courselist.reset(rows);
+				querymeta.set(data.meta);
 
 				console.log("rows");
 				console.dir(rows);
