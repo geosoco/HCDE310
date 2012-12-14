@@ -1,3 +1,9 @@
+/*
+ *
+ * Spinner helper function
+ *
+ */
+
 $.fn.spin = function(opts) {
   this.each(function() {
     var $this = $(this),
@@ -14,6 +20,12 @@ $.fn.spin = function(opts) {
   return this;
 };
 
+
+/*
+ *
+ * Query string parser
+ *
+ */
 function parseQueryString(query) {
 	var nvpair = {};
 		var qs = query.replace('?', '');
@@ -34,24 +46,88 @@ function parseQueryString(query) {
     EC = 16
     QSR = 32
 */
+GEN_ED_REQ_CODES = [
+	{id: 1, abbr: "NW", name: "Natural World"},
+	{id: 2, abbr: "VLPA", name: "Visual Literary and Performing Arts"},
+	{id: 4, abbr: "IS", name: "Individuals and Socieites"},
+	{id: 8, abbr: "W", name: "Writing"},
+	{id:16, abbr: "EC", name: "English Composition"},
+	{id:32, abbr: "QSR", name: "Quantitative and Symbolic Reasoning"}
+]
+
 function genedreqCodeToNumber(ger) {
-	switch(ger) {
-		case 'NW': return 1;
-		case 'VLPA': return 2;
-		case 'IS': return 4;
-		case 'W': return 8;
-		case 'EC': return 16;
-		case 'QSR': return 32;
-		default: return 0;
+	for(var i = 0; i < GEN_ED_REQ_CODES.length; i++) {
+		if(GEN_ED_REQ_CODES[i].abbr == ger) {
+			return GEN_ED_REQ_CODES[i].id;
+		}
 	}
 }
 
+function GenEdCodeToAbbrString(gerVal) {
+	var codes = []
+	for(var i = 0; i < GEN_ED_REQ_CODES.length; i++) {
+		if((gerVal & GEN_ED_REQ_CODES[i].id) != 0) {
+			codes.push(GEN_ED_REQ_CODES[i].abbr);
+		}
+	}
+
+	return codes.join(', ')
+}
+
+
+
+/*
+ *
+ * Models
+ *
+ */
 
 window.Course = Backbone.Model.extend({
 
 });
 
 
+window.CourseList = Backbone.Collection.extend({
+	model: Course
+})
+
+window.QueryMeta = Backbone.Model.extend({
+
+});
+
+window.QueryResult = Backbone.Model.extend({
+
+});
+
+
+window.Query = Backbone.Model.extend({
+	defaults: {
+		"page": 0,
+		"ger": 0,
+		"starttime": null,
+		"endtime": null,
+		"query": "",
+		"offered": false,
+		"open": false,
+	},
+	initialize: function() {
+
+	}
+
+});
+
+
+courselist = new CourseList();
+querymeta = new QueryMeta();
+query = new Query();
+
+
+
+/*
+ *
+ * Views
+ *
+ */
 
 window.SearchView = Backbone.View.extend({
     initialize: function(){
@@ -118,15 +194,65 @@ window.SearchView = Backbone.View.extend({
     	return false;
     },
     doLookahead: function( event ) {
-    	console.log('doLookahead');
+    	//console.log('doLookahead');
     }
 
 });
 
 
+FilterPanelView = Backbone.View.extend({
+
+	initialize: function() {
+		this.render();
+	},
+
+	render: function() {
+
+    	var html = Mustache.render($("#tmpl_filterpanel").html(), {} );
+		this.$el.html( html );
+	}
+
+});
+
+
+window.ResultListItem = Backbone.View.extend({
+	template: "<tr><td>{{course}}</td><td>{{name}}</td><td>{{credits}}</td><td>{{enrollment}}</td><td>{{genedreqs}}</td></tr>",
+	initialize: function() {
+
+	},
+
+	render: function() {
+		return Mustache.render(this.template, this.model.toJSON() );
+	}
+});
+
+window.ResultListView = Backbone.View.extend({
+	initialize: function() {
+		var results = this.collection;
+		results.on("reset", this.render, this);
+	},
+
+	render: function() {
+		var html = Mustache.render($("#tmpl_resultlist").html(), {} );
+		this.$el.html( html );
+
+		_.each(this.collection.models, function (course) {
+            $('tbody').append(new ResultListItem({model:course}).render());
+        }, this);
+	}
+});
+
 window.ResultsView = Backbone.View.extend({
 	initialize: function() {
 		this.render();
+		this.filterpanel = new FilterPanelView({
+			el: '#filterpanel',
+			model: query,
+		});
+		this.resultlist = new ResultListView({
+			el: '#slickgrid',
+			collection: courselist
+		})
 	},
 
 	events: {
@@ -137,20 +263,31 @@ window.ResultsView = Backbone.View.extend({
 
     	var html = Mustache.render($("#tmpl_results").html(), {} );
 		this.$el.html( html );
-		console.log('results done')
+		if(this.filterpanel) {
+			this.filterpanel.render();
+		}
 	}
 
 });
 
+
+
+
+
+
+/*
+ *
+ *
+ * Router
+ *
+ *
+ */
 
 window.SearchApp = Backbone.Router.extend({
 	
 	routes: {
 		"": 					"main",
 		"search/*query": 		"search", 
-		"curriculums":			"browseCurriculums",
-		"courses":				"browseCourses",
-		"instructors":			"browseInstructors",
 	},
 
 	initialize: function(options) {
@@ -159,7 +296,7 @@ window.SearchApp = Backbone.Router.extend({
 
 	main: function() {
     	var search = new SearchView({
-        	el: $('#main')
+        	el: '#main'
       	});
 
 	},
@@ -172,7 +309,7 @@ window.SearchApp = Backbone.Router.extend({
     	console.dir(params);
 
 		search = new ResultsView({
-		        	el: $('#main')
+		        	el: '#main'
 		      	});
 
 		var spinner = $('#slickgrid').first().spin("small" );
@@ -182,18 +319,21 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
+		// request our data
 		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + (page * 50) + '&limit=50&' + $.param(params) + '', {
 			success: function(data) {
-				console.log('ajax success!');
+				meta = new QueryMeta(data.meta);
+
+				//console.log('ajax success!');
 				console.dir(data);
 				spinner.spin(false);
 
 				var columns = [
-				    { name: "Course", field: "course", id: "course", sortable: true, width: 100 },
+				    { name: "Course", field: "course", id: "course", width: 100 },
 				    { name: "Name", field: "name", id: "name", width: 300 },
 				    { name: "Credits", field: "credits", id:"credits", width: 50},
-				    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 80}
-
+				    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 80},
+				    { name: "G.E. Reqs.", field: "genedreqs", id:"genedreqs", width: 80}
 				];
 
 				var rows = data.objects.map(function(d,i){
@@ -219,36 +359,29 @@ window.SearchApp = Backbone.Router.extend({
 						"name": d.name,
 						"credits": d.mincredits,
 						"enrollment": enrollment,
+						"genedreqs": GenEdCodeToAbbrString(d.genedreqs)
 					}
 				});
+
+				courselist.reset(rows);
 
 				console.log("rows");
 				console.dir(rows);
 				
 				//$('#main').html(JSON.stringify(data));
+				/*
 				slickgrid = new Slick.Grid("#slickgrid",
 					rows,
 					columns,
 					{}
 					);
-
+				*/
 			}
 
 		});
 
 	},
 
-	browseCurriculums: function() {
-
-	},
-
-	browseCourses: function() {
-
-	},
-
-	browseInstructors: function() {
-
-	}
 
 });
 
