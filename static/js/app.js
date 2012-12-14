@@ -83,6 +83,14 @@ function getgerval() {
  	return genedreqs;
 }
 
+function setgerval() {
+	var ger = query.get('ger');
+	for(var i = 0; i < GEN_ED_REQ_CODES.length; i++) {
+		$('input[name=ger][value=' + GEN_ED_REQ_CODES[i].abbr + ']').prop('checked', ((ger & GEN_ED_REQ_CODES[i].id) ? true : false) )
+	}	
+}
+
+
 /*
  *
  * Models
@@ -249,6 +257,10 @@ FilterPanelView = Backbone.View.extend({
 			var oldval = query.get('ger');
 			console.log('ger changed: from "' + oldval + '" to "' + newval + '"')
 			query.set('ger', getgerval());
+		} else if( name === 'starttime' ) {
+			query.set(name, $('#' + name).val());
+		} else if( name === 'endtime') {
+			query.set(name, $('#' + name).val())
 		}
 	}
 
@@ -377,7 +389,7 @@ window.ResultsView = Backbone.View.extend({
 	},
 
 	selected: function(ev) {
-
+		console.log('row selected');
 	},
 
 	events: {
@@ -549,7 +561,13 @@ window.SearchApp = Backbone.Router.extend({
 queryEvent.on("all", function(eventname){
 	console.log("queryEvent all: " + eventname );
 	console.dir(query.toJSON());
-	app.navigate('search/?' + $.param(buildQueryString()), {trigger: true} );
+
+	var q = buildQueryString();
+	if('ger' in q) {
+		setgerval();
+	}
+
+	app.navigate('search/?' + $.param(q), {trigger: true} );
 });
 
 query.on("change", function(){ 
