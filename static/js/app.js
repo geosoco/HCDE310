@@ -264,8 +264,10 @@ window.ResultPagerView = Backbone.View.extend({
 		var page_size = query.get('limit');
 		var maxpages = Math.floor(this.model.get('total_count') / page_size);
 		var curpage = Math.floor(this.model.get('offset') / page_size);
-		var firstpage = Math.max(0, curpage - 2);
-		var lastpage = Math.min(maxpages, curpage + 2);
+		var lastpage = (curpage > 5) ? Math.min(maxpages, curpage + 2) : maxpages;
+		var firstpage = (curpage > 5) ? Math.max(0, firstpage - 5) : 0;
+
+
 
 		console.log('maxpages = ' + maxpages );
 		console.log('curpage = ' + curpage );
@@ -277,7 +279,7 @@ window.ResultPagerView = Backbone.View.extend({
 
 			html += '<li' + (curpage <= 0 ? ' class="disabled"' : '') + '><a data-page="' + ((curpage -1) >= 0 ? (curpage-1) : '') +'" href="#">Prev</a></li>';
 			console.log('prev page is: ' + (curpage-1));
-			for(var i = firstpage; i <= lastpage; i++ ) {
+			for(var i = firstpage; i < lastpage; i++ ) {
 				html += '<li' + (curpage == i ? ' class="active"' : '') + '><a data-page="' + i +'" href="#">' + (i+1) + '</a></li>';
 			}
 			console.log('next page is: ' + (curpage+1));
@@ -308,6 +310,7 @@ window.ResultPagerView = Backbone.View.extend({
 
 		var page = $(el.srcElement).data('page') || 0;
 		var offset = page * query.get('limit');
+		console.log('offset is now: ' + offset );
 		query.set('offset', offset );
 
 		// disable standard handling
@@ -326,7 +329,7 @@ window.ResultsView = Backbone.View.extend({
 		this.render();
 		this.filterpanel = new FilterPanelView({
 			el: '#filterpanel',
-			model: query,
+			model: this.model,
 		});
 		this.resultlist = new ResultListView({
 			el: '#resultlist',
@@ -363,9 +366,89 @@ window.ResultsView = Backbone.View.extend({
 
 });
 
+/*
+	"offset": 0,
+		"limit": 20,
+		"ger": 0,
+		"starttime": null,
+		"endtime": null,
+		"query": "",
+		"offered": false,
+		"open": false,
+*/
+
+function copyIfNotDefault(q, prop, defaultval) {
+	if(query.get(prop) !== defaultval) { q[prop] = query.get(prop); }
+
+	return q;
+}
+
+function doQuery() {
+	var q = {}
+
+	q = copyIfNotDefault(q, 'offset', 0);
+	q = copyIfNotDefault(q, 'limit', 20);
+	q = copyIfNotDefault(q, 'ger', 0);
+	q = copyIfNotDefault(q, 'starttime', null);
+	q = copyIfNotDefault(q, 'endtime', null);
+	q = copyIfNotDefault(q, 'query', '');
+	q = copyIfNotDefault(q, 'offered', false);
+	q = copyIfNotDefault(q, 'open', false);
+
+	var spinner = $('#results').first().spin("small" );
+
+	// request our data
+	$.ajax( BASE_URL + 'api/v1/course/?' + $.param(q) + '', {
+		success: function(data) {
+			//console.log('ajax success!');
+			console.dir(data);
+			spinner.spin(false);
+
+			var columns = [
+			    { name: "Course", field: "course", id: "course", width: 100 },
+			    { name: "Name", field: "name", id: "name", width: 300 },
+			    { name: "Credits", field: "credits", id:"credits", width: 50},
+			    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 80},
+			    { name: "G.E. Reqs.", field: "genedreqs", id:"genedreqs", width: 80}
+			];
+
+			var rows = data.objects.map(function(d,i){
+
+				var enrolled = 0;
+				var maxenrolled = -1;
+
+				if(d.sections.length > 0) {
+					for(var i = 0; i < d.sections.length; i++ ) {
+						enrolled = d.sections[i].numenrolled;
+						maxenrolled = d.sections[i].maxenrollment;
+					}
+				}
+
+				var enrollment = '';
+				if(maxenrolled > 0) {
+					enrollment = enrolled + "/" + maxenrolled;
+				}
 
 
+				return {
+					"course": d.curriculum.abbreviation + " " + d.number,
+					"name": d.name,
+					"credits": d.mincredits,
+					"enrollment": enrollment,
+					"genedreqs": GenEdCodeToAbbrString(d.genedreqs)
+				}
+			});
 
+			courselist.reset(rows);
+			querymeta.set(data.meta);
+
+			console.log("rows");
+			console.dir(rows);
+			
+		}
+
+	});
+}
 
 
 /*
@@ -389,13 +472,13 @@ window.SearchApp = Backbone.Router.extend({
 
 	main: function() {
     	var search = new SearchView({
-        	el: '#main'
+        	el: '#main',
+        	model: query,
       	});
 
 	},
 
 	search: function(querystr) {
-		var page = null;
 		console.dir(querystr);
 
 		var params = parseQueryString(querystr);
@@ -405,74 +488,8 @@ window.SearchApp = Backbone.Router.extend({
 		        	el: '#main',
 		      	});
 
-		var spinner = $('#results').first().spin("small" );
 
-		page = page || 0;
-
-
-
-
-		// request our data
-		$.ajax( BASE_URL + 'api/v1/course/?format=json&offset=' + query.get('offset') + '&limit=' + query.get('limit') + '&' + $.param(params) + '', {
-			success: function(data) {
-				meta = new QueryMeta(data.meta);
-
-				//console.log('ajax success!');
-				console.dir(data);
-				spinner.spin(false);
-
-				var columns = [
-				    { name: "Course", field: "course", id: "course", width: 100 },
-				    { name: "Name", field: "name", id: "name", width: 300 },
-				    { name: "Credits", field: "credits", id:"credits", width: 50},
-				    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 80},
-				    { name: "G.E. Reqs.", field: "genedreqs", id:"genedreqs", width: 80}
-				];
-
-				var rows = data.objects.map(function(d,i){
-
-					var enrolled = 0;
-					var maxenrolled = -1;
-
-					if(d.sections.length > 0) {
-						for(var i = 0; i < d.sections.length; i++ ) {
-							enrolled = d.sections[i].numenrolled;
-							maxenrolled = d.sections[i].maxenrollment;
-						}
-					}
-
-					var enrollment = '';
-					if(maxenrolled > 0) {
-						enrollment = enrolled + "/" + maxenrolled;
-					}
-
-
-					return {
-						"course": d.curriculum.abbreviation + " " + d.number,
-						"name": d.name,
-						"credits": d.mincredits,
-						"enrollment": enrollment,
-						"genedreqs": GenEdCodeToAbbrString(d.genedreqs)
-					}
-				});
-
-				courselist.reset(rows);
-				querymeta.set(data.meta);
-
-				console.log("rows");
-				console.dir(rows);
-				
-				//$('#main').html(JSON.stringify(data));
-				/*
-				slickgrid = new Slick.Grid("#slickgrid",
-					rows,
-					columns,
-					{}
-					);
-				*/
-			}
-
-		});
+		query.set(params);
 
 	},
 
@@ -481,6 +498,21 @@ window.SearchApp = Backbone.Router.extend({
 
 
 
+/*
+ *
+ *
+ * event handler
+ *
+ *
+ */
 
+queryEvent.on("all", function(eventname){
+	console.log("queryEvent all: " + eventname );
+	console.dir(query.toJSON());
+	doQuery();
+});
 
+query.on("change", function(){ 
+	queryEvent.trigger('change');
+});
 
