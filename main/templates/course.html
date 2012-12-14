@@ -12,7 +12,6 @@
         <br>
         <br>
         <div class="row-fluid marketing">
-	        <div class="span6">
 	            <h3>Sections</h3>
                 <table class="table table-hover">
                     <th>Section</th>
@@ -25,7 +24,7 @@
                 {% for section in sections %}
                     {% if section.maxenrollment != null %}
                     <tr>
-                        <td>{{section.section}}</td>
+                        <td>{% section section section.section %}</td>
                         <td>{{section.sln}}</td>
                         <td>{% instructor section.idinstructor %}</td>
                         <td>{{section.numenrolled}}</td>
@@ -43,7 +42,6 @@
                 </table>
                 <br>
                 <br>
-            </div>
             </div>
 	        <h3>Instructor Ratings</h3>
             <table class="table table-hover">

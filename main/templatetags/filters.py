@@ -22,7 +22,12 @@ def course(value, text = None):
 @register.simple_tag        
 def section(value, text = None):
     if value is not None:
-		return '<i class="icon-book"></i><a href="%scourse/%d">%s</a>'%(BASE_URL, value.idcourse.id, (text if text is not None else (value.idcourse.idcurriculum.abbreviation + ' ' + str(value.idcourse.number)) ))
+		return '<i class="icon-book"></i><a href="%ssection/%s/%d/%d/%s/%s">%s</a>'%(BASE_URL, 
+            value.idcourse.idcurriculum.abbreviation, 
+            value.idcourse.number,
+            value.year,
+            value.quarter, 
+            value.section, (text if text is not None else (value.idcourse.idcurriculum.abbreviation + ' ' + str(value.idcourse.number)) ))
 
 @register.simple_tag
 def day(value, text = None):
