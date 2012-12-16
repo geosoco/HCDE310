@@ -222,16 +222,33 @@
   </tr>
 </script>
 <script type="text/template" id="tmpl_details">
-<h4><a href="{{BASE_URL}}course/<%= obj.curriculum.abbreviation %>/<%= obj.number %>"><i class="icon-book"></i><%= course %></a></h4>
+<h4><a href="{{BASE_URL}}course/<%= obj.curriculum.abbreviation %>/<%= obj.number %>"><i class="icon icon-white icon-book"></i> <%= course %></a></h4>
 <h5><%= obj.name %></h5>
 <p><%= obj.description %></p>
 <% if(obj.sections.length > 0) { %>
 <h6>Sections</h6>
-<ul>
 <% for(var s in obj.sections) { %>
-  <li><%= obj.sections[s].quarter %><%= obj.sections[s].year %></li>
+  <div class="sectionitem">
+    <% var sect = obj.sections[s] %>
+    <% var year = (sect.year < 1900) ? ((sect.year > 70) ? (sect.year+1900) : (sect.year+2000)): sect.year %>
+    <a href="{{BASE_URL}}section/<%= obj.curriculum.abbreviation %>/<%= obj.number %>/<%= year %>/<%= sect.quarter %>/<%= sect.section %>">
+    <i class="icon-white icon-th"></i> <%= sect.quarter %> <%= sect.year %> <%= sect.section %>
+    </a>
+    <ul>
+      <% if(sect.instructor !== null ) { %>
+        <li><b>Instructor: </b> <a href="{{BASE_URL}}instructor/<%= sect.instructor.id %>">
+        <i class="icon-white icon-user"></i><%= sect.instructor.name %></a>
+        </li>
+      <% } %>
+      <% if(sect.numenrolled !== null ) { %>
+        <li><b>Enrollment: </b> <%= sect.numenrolled %> / <%= sect.maxenrollment %></li>
+      <% } %>
+      <% if(sect.ratings !== null ) { %>
+        <li><b>Rating: </b> <%= sect.ratings.coursewhole %></li>
+      <% } %>
+    </ul>
+  </div>
 <% } %>
-</ul>
 <% } %>
 </script>
 

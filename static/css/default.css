@@ -34,7 +34,22 @@ body { background-color: #fff; padding-top: 50px; }
 	height: 1.5em;
 }
 
+
+
+
+tr.selected {
+	background-color: #DFDDE8;
+}
+
+
+
 #mainlogo { overflow: auto; margin-bottom: 30px; }
 .w-wrap { background-color: #39275b; padding: 60px; }
 #sched_subtitle { background-color: #E3BF42; bottom: 0px; margin-top: -100px; margin-left: -20px; }
 #main { padding-bottom: 50px; overflow: auto; min-height: 80%;}
+#details { background-color: #39275B; color: #ddd; padding: 10px; min-height: 400px;}
+#details a { color: #fff; font-weight: bold; }
+#details h5 { font-style: italic; font-weight: normal; margin-bottom: 20px;}
+#details h4 a { color: #E3BF42;}
+
+.sectionitem { border-top: 1px solid #DFDDE8; margin-bottom: 5px; }

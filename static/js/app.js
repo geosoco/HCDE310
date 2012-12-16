@@ -381,6 +381,8 @@ window.DetailsView = Backbone.View.extend({
 });
 
 window.ResultsView = Backbone.View.extend({
+	selection: null,
+
 	initialize: function() {
 		this.render();
 		this.filterpanel = new FilterPanelView({
@@ -406,8 +408,8 @@ window.ResultsView = Backbone.View.extend({
 		var tmp = courselist.get(id);
 		console.dir(tmp);
 
-		$('tr .selected',$(ev.srcElement).parent('table')).removeClass('selected');
-		$()
+		$('tr.selected',$(tr).parent()).removeClass('selected');
+		$(tr).addClass('selected');
 
 		var details = new DetailsView({
 			el: '#details',
