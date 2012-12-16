@@ -81,7 +81,7 @@ class CourseResource(ModelResource):
 	    	semi_filtered = semi_filtered.exclude(section__meeting__starttime__lt=starttime)
 
 	    if "offered" in request.REQUEST:
-	    	semi_filtered = semi_filtered.filter(section__quarter ='WI', section__year = 2013)
+	    	semi_filtered = semi_filtered.filter(section__quarter__exact ='WI', section__year='2013').exclude(section__isnull=True)
 
 	    if "open" in request.REQUEST:
 	    	semi_filtered = semi_filtered.filter(section__maxenrollment__gt=F('section__numenrolled'))
