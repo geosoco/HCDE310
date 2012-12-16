@@ -25,6 +25,7 @@ $.fn.spin = function(opts) {
  *
  * Query string parser
  *
+ * adapted from: http://paulgueller.com/2011/04/26/parse-the-querystring-with-jquery/
  */
 function parseQueryString(querystr) {
 	var nvpair = {};
@@ -32,7 +33,7 @@ function parseQueryString(querystr) {
     	var pairs = qs.split('&');
     	$.each(pairs, function(i, v){
       		var pair = v.split('=');
-      		nvpair[pair[0]] = pair[1];
+      		nvpair[pair[0]] = pair[1].replace('+', ' ');
     	});
 
     return nvpair;
@@ -271,7 +272,7 @@ FilterPanelView = Backbone.View.extend({
 
 
 window.ResultListItem = Backbone.View.extend({
-	template: "<tr><th>{{course}}</th><td>{{name}}</td><td>{{credits}}</td><td>{{enrollment}}</td><td>{{genedreqs}}</td></tr>",
+	template: "<tr data-id='{{id}}'><th>{{course}}</th><td>{{name}}</td><td>{{credits}}</td><td>{{enrollment}}</td><td>{{genedreqs}}</td></tr>",
 	initialize: function() {
 
 	},
@@ -370,6 +371,14 @@ window.ResultPagerView = Backbone.View.extend({
 });
 
 
+window.DetailsView = Backbone.View.extend({
+	initialize: function() {
+		this.render();
+	},
+	render: function() {
+		this.$el.html(_.template($("#tmpl_details").html(), this.model.toJSON()));
+	}
+});
 
 window.ResultsView = Backbone.View.extend({
 	initialize: function() {
@@ -392,7 +401,19 @@ window.ResultsView = Backbone.View.extend({
 	},
 
 	selected: function(ev) {
-		console.log('row selected');
+		var tr = $(ev.srcElement).parent('tr');
+		var id = tr.data('id');
+		var tmp = courselist.get(id);
+		console.dir(tmp);
+
+		$('tr .selected',$(ev.srcElement).parent('table')).removeClass('selected');
+		$()
+
+		var details = new DetailsView({
+			el: '#details',
+			model: courselist.get(id),
+		});
+
 	},
 
 	events: {
@@ -458,13 +479,6 @@ function doQuery() {
 			//console.dir(data);
 			spinner.spin(false);
 
-			var columns = [
-			    { name: "Course", field: "course", id: "course", width: 100 },
-			    { name: "Name", field: "name", id: "name", width: 300 },
-			    { name: "Credits", field: "credits", id:"credits", width: 50},
-			    { name: "Enrollment", field: "enrollment", id:"enrollment", width: 80},
-			    { name: "G.E. Reqs.", field: "genedreqs", id:"genedreqs", width: 80}
-			];
 
 			var rows = data.objects.map(function(d,i){
 
@@ -485,10 +499,14 @@ function doQuery() {
 
 
 				return {
+					"id": +d.id,
+					"obj": d,
 					"course": d.curriculum.abbreviation + " " + d.number,
 					"name": ((d.name.length > 32) ? (d.name.substring(0,32) + '...'): d.name),
 					"credits": d.mincredits,
 					"enrollment": enrollment,
+					"enrolled": enrolled,
+					"maxenrollment": maxenrolled,
 					"genedreqs": GenEdCodeToAbbrString(d.genedreqs)
 				}
 			});

@@ -28,6 +28,8 @@ class CourseResource(ModelResource):
 			'section': ALL_WITH_RELATIONS,
 			'days': ['eq',],
 			'endtime': ALL,
+			'open': ALL,
+			'offered': ALL,
 		}
 
 	def build_filters(self, filters=None):
@@ -68,7 +70,7 @@ class CourseResource(ModelResource):
 
 	    if "days" in request.REQUEST:
 	    	d = (~int(request.REQUEST['days'])) & 255
-	    	semi_filtered = semi_filtered.extra(where=["meeting.Day & %s = 0"], params=(d), tables=['section', 'meeting'])
+	    	semi_filtered = semi_filtered.extra(where=["Meeting.Day & %s = 0"], params=(d), tables=['section', 'meeting'])
 
 	    if "endtime" in request.REQUEST:
 	    	endtime = int(request.REQUEST['endtime'])
@@ -77,6 +79,12 @@ class CourseResource(ModelResource):
 	    if "starttime" in request.REQUEST:
 	    	starttime = int(request.REQUEST['starttime'])
 	    	semi_filtered = semi_filtered.exclude(section__meeting__starttime__lt=starttime)
+
+	    if "offered" in request.REQUEST:
+	    	semi_filtered = semi_filtered.filter(section__quarter ='WI', section__year = 2013)
+
+	    if "open" in request.REQUEST:
+	    	semi_filtered = semi_filtered.filter(section__maxenrollment__gt=F('section__numenrolled'))
 
 
 

@@ -111,7 +111,9 @@
   <div id="results" class="offset3 span10">
     <div id="resultlist"></div>
     <div id="pager"></div>
-  </div>  
+  </div>
+  <div id="details" class="offset13 span3">
+  </div>
 </script>
 
 <script type="text/template" id="tmpl_filterpanel">
@@ -219,6 +221,20 @@
     <td></td>
   </tr>
 </script>
+<script type="text/template" id="tmpl_details">
+<h4><a href="{{BASE_URL}}course/<%= obj.curriculum.abbreviation %>/<%= obj.number %>"><i class="icon-book"></i><%= course %></a></h4>
+<h5><%= obj.name %></h5>
+<p><%= obj.description %></p>
+<% if(obj.sections.length > 0) { %>
+<h6>Sections</h6>
+<ul>
+<% for(var s in obj.sections) { %>
+  <li><%= obj.sections[s].quarter %><%= obj.sections[s].year %></li>
+<% } %>
+</ul>
+<% } %>
+</script>
+
 
 <script src="{{STATIC_URL}}js/app.js"></script>
 <script type="text/javascript">
