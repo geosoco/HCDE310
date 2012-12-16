@@ -156,7 +156,7 @@ var queryEvent = _.extend({}, Backbone.Events);
 
 window.SearchView = Backbone.View.extend({
     initialize: function(){
-    	console.log('searchview init');
+    	//console.log('searchview init');
     	this.render();
     },
 
@@ -173,7 +173,7 @@ window.SearchView = Backbone.View.extend({
     },
 
     doSearch: function( event ) {
-    	console.log('doSearch');
+    	//console.log('doSearch');
     	var params = {};
 
     	/*
@@ -240,7 +240,7 @@ FilterPanelView = Backbone.View.extend({
 		if(this.model.get('ger') > 0) {
 			var ger = this.model.get('ger');
 			$('input[name="ger"]').each(function(d,i){
-				console.dir(d);
+				//console.dir(d);
 			});
 		};
 
@@ -251,14 +251,14 @@ FilterPanelView = Backbone.View.extend({
 	},
 
 	changed: function(ev) {
-		console.log('input changed: ' + $(ev.srcElement).attr('name'));
-		console.dir(ev);
-		console.dir($(ev.srcElement).val());
+		//console.log('input changed: ' + $(ev.srcElement).attr('name'));
+		//console.dir(ev);
+		//console.dir($(ev.srcElement).val());
 		var name = $(ev.srcElement).attr('name');
 		if( name === 'ger') {
 			var newval = getgerval();
 			var oldval = query.get('ger');
-			console.log('ger changed: from "' + oldval + '" to "' + newval + '"')
+			//console.log('ger changed: from "' + oldval + '" to "' + newval + '"')
 			query.set('ger', getgerval());
 		} else if( name === 'starttime' ) {
 			query.set(name, $('#' + name).val());
@@ -521,7 +521,7 @@ window.SearchApp = Backbone.Router.extend({
 	},
 
 	initialize: function(options) {
-		console.log('router init');
+		//console.log('router init');
 	},
 
 	main: function() {
@@ -533,11 +533,12 @@ window.SearchApp = Backbone.Router.extend({
 	},
 
 	search: function(querystr) {
-		console.log('search!');
-		console.dir(querystr);
+		//console.log('search!');
+		//console.dir(querystr);
 
-		var params = $.extend(query.defaults, parseQueryString(querystr));
-    	console.dir(params);
+		var params = $.extend({}, query.defaults);
+		var params = $.extend(params, parseQueryString(querystr));
+    	//console.dir(params);
 
     	processing = true;
 		query.set(params);
@@ -578,15 +579,14 @@ processing = false;
 
 function setSelect(q, name) {
 	if(name in q) {
-		console.log( name + ' is ' + q[name]);
+		//console.log( name + ' is ' + q[name]);
 		$('#' + name).val(q[name]);
-		//$('#starttime')
 	}	
 }
 
 queryEvent.on("all", function(eventname){
-	console.log("queryEvent all: " + eventname );
-	console.dir(query.toJSON());
+	//console.log("queryEvent all: " + eventname );
+	//console.dir(query.toJSON());
 
 	var q = buildQueryString();
 	
