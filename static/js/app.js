@@ -316,20 +316,20 @@ window.ResultPagerView = Backbone.View.extend({
 
 
 
-		console.log('maxpages = ' + maxpages );
-		console.log('curpage = ' + curpage );
-		console.log('firstpage = ' + firstpage );
-		console.log('lastpage = ' + lastpage );
+		//console.log('maxpages = ' + maxpages );
+		//console.log('curpage = ' + curpage );
+		//console.log('firstpage = ' + firstpage );
+		//console.log('lastpage = ' + lastpage );
 
 		if(maxpages > 0) {
 			var html = '<div class="pagination"><ul>'
 
 			html += '<li' + (curpage <= 0 ? ' class="disabled"' : '') + '><a data-page="' + ((curpage -1) >= 0 ? (curpage-1) : '') +'" href="#">Prev</a></li>';
-			console.log('prev page is: ' + (curpage-1));
+			//console.log('prev page is: ' + (curpage-1));
 			for(var i = firstpage; i < lastpage; i++ ) {
 				html += '<li' + (curpage == i ? ' class="active"' : '') + '><a data-page="' + i +'" href="#">' + (i+1) + '</a></li>';
 			}
-			console.log('next page is: ' + (curpage+1));
+			//console.log('next page is: ' + (curpage+1));
 			html += '<li' + (curpage > maxpages-1 ? ' class="disabled"' : '') + '><a data-page="' + ((curpage +1) <= maxpages ? (curpage+1) : '') +'" href="#">Next</a></li>';
 			html += '</ul></div>';
 
@@ -341,12 +341,12 @@ window.ResultPagerView = Backbone.View.extend({
 	}, 
 
 	pageselected: function(el) {
-		console.dir(el);
+		//console.dir(el);
 
-		console.log();
-		console.log('pageselected');
-		console.log('active: ' + $(el.srcElement).parent('li').hasClass('active'));
-		console.log('disabled: ' + $(el.srcElement).parent('li').hasClass('disabled'));
+		//console.log();
+		//console.log('pageselected');
+		//console.log('active: ' + $(el.srcElement).parent('li').hasClass('active'));
+		//console.log('disabled: ' + $(el.srcElement).parent('li').hasClass('disabled'));
 
 		var parent = $(el.srcElement).parent('li');
 
@@ -357,7 +357,7 @@ window.ResultPagerView = Backbone.View.extend({
 
 		var page = $(el.srcElement).data('page') || 0;
 		var offset = page * query.get('limit');
-		console.log('offset is now: ' + offset );
+		//console.log('offset is now: ' + offset );
 		query.set('offset', offset );
 
 		// disable standard handling
@@ -455,7 +455,7 @@ function doQuery() {
 		dataType: 'json',
 		success: function(data) {
 			//console.log('ajax success!');
-			console.dir(data);
+			//console.dir(data);
 			spinner.spin(false);
 
 			var columns = [
