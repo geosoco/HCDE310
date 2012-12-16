@@ -83,8 +83,10 @@ function getgerval() {
  	return genedreqs;
 }
 
+
+
 function setgerval() {
-	var ger = query.get('ger');
+	var ger = query.get('ger') || 0;
 	for(var i = 0; i < GEN_ED_REQ_CODES.length; i++) {
 		$('input[name=ger][value=' + GEN_ED_REQ_CODES[i].abbr + ']').prop('checked', ((ger & GEN_ED_REQ_CODES[i].id) ? true : false) )
 	}	
@@ -178,7 +180,8 @@ window.SearchView = Backbone.View.extend({
     	 * query string
     	 *
     	 */
-    	var str = $('#query').val().trim();
+    	var str = $('#query').val() || '';
+    	str = str.trim();
     	if(str !== undefined && str.length > 0) {
     		params['query'] = str;
     	}
@@ -244,7 +247,7 @@ FilterPanelView = Backbone.View.extend({
 	}, 
 
 	events: {
-		"change input": "changed",
+		"change": "changed",
 	},
 
 	changed: function(ev) {
@@ -443,7 +446,7 @@ function buildQueryString() {
 }
 
 function doQuery() {
-	q = buildQueryString();
+	var q = buildQueryString();
 
 	var spinner = $('#results').first().spin("small" );
 
@@ -522,25 +525,37 @@ window.SearchApp = Backbone.Router.extend({
 	},
 
 	main: function() {
-    	var search = new SearchView({
+    	this.search = new SearchView({
         	el: '#main',
         	model: query,
       	});
-
+    	this.results = null;
 	},
 
 	search: function(querystr) {
 		console.log('search!');
 		console.dir(querystr);
 
-		var params = parseQueryString(querystr);
+		var params = $.extend(query.defaults, parseQueryString(querystr));
     	console.dir(params);
 
+    	processing = true;
 		query.set(params);
+
+		processing = false;
+
 		this.results = this.results || new ResultsView({
 		        	el: '#main',
 		        	model: query,
 		      	});
+
+		var q = buildQueryString();
+		setgerval();
+
+
+		setSelect(q, 'starttime');
+		setSelect(q, 'endtime');
+		
 
 		doQuery();
 	},
@@ -558,16 +573,28 @@ window.SearchApp = Backbone.Router.extend({
  *
  */
 
+processing = false;
+
+
+function setSelect(q, name) {
+	if(name in q) {
+		console.log( name + ' is ' + q[name]);
+		$('#' + name).val(q[name]);
+		//$('#starttime')
+	}	
+}
+
 queryEvent.on("all", function(eventname){
 	console.log("queryEvent all: " + eventname );
 	console.dir(query.toJSON());
 
 	var q = buildQueryString();
-	if('ger' in q) {
-		setgerval();
-	}
+	
 
-	app.navigate('search/?' + $.param(q), {trigger: true} );
+	if(!processing) {
+		app.navigate('search/?' + $.param(q), {trigger: true} );	
+	}
+	
 });
 
 query.on("change", function(){ 
